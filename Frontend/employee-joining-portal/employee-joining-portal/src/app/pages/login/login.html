@@ -1,0 +1,68 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="logo-section">
+      <h1>Alpha Data</h1>
+      <p>Employee Portal</p>
+    </div>
+
+    <div class="login-content">
+      <h2>Welcome Back</h2>
+
+      <p class="subtitle">Sign in to continue</p>
+
+      <form (ngSubmit)="login()">
+        
+
+       
+
+        <!-- ================================================= -->
+        <!-- LOGIN ID -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+          <label for="loginId"> Username </label>
+
+          <input
+            id="loginId"
+            type="text"
+            name="loginId"
+            [(ngModel)]="loginId"
+            placeholder="Enter your Username"
+          />
+        </div>
+
+        <!-- ================================================= -->
+        <!-- PASSWORD -->
+        <!-- ================================================= -->
+
+        <div class="form-group">
+          <label for="password"> Password </label>
+
+          <input
+            id="password"
+            type="password"
+            name="password"
+            [(ngModel)]="password"
+            placeholder="Enter your password"
+          />
+        </div>
+
+        <!-- ================================================= -->
+        <!-- ERROR MESSAGE -->
+        <!-- ================================================= -->
+
+        <p *ngIf="errorMessage" class="error-message">
+          {{ errorMessage }}
+        </p>
+
+        <!-- ================================================= -->
+        <!-- LOGIN BUTTON -->
+        <!-- ================================================= -->
+
+        <button type="submit" class="login-button" [disabled]="loading">
+          {{ loading ? 'Logging in...' : 'Login' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

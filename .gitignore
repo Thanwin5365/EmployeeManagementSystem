@@ -1,0 +1,24 @@
+
+# Angular generated files
+**/node_modules/
+**/dist/
+**/.angular/
+**/.vscode/
+
+# .NET generated files
+**/bin/
+**/obj/
+**/.vs/
+**/*.csproj.user
+
+# Sensitive configuration
+.env
+.env.*
+
+# Local application settings
+**/appsettings.json
+**/appsettings.Development.json
+**/appsettings.Production.json
+
+# Logs
+*.log

@@ -1,0 +1,27 @@
+<app-employee-home
+  *ngIf="role === 'employee'">
+</app-employee-home>
+
+
+<app-manager-home
+  *ngIf="
+    role === 'manager' &&
+    managerLevel === 1
+  ">
+</app-manager-home>
+
+
+<app-level2-manager-home
+  *ngIf="
+    role === 'manager' &&
+    managerLevel === 2
+  ">
+</app-level2-manager-home>
+
+
+<app-hr-home
+  *ngIf="
+    role === 'manager' &&
+    managerLevel === 3
+  ">
+</app-hr-home>

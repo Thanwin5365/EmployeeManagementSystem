@@ -1,0 +1,1295 @@
+<div class="hr-page">
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
+  <header class="top-header">
+
+    <div class="brand">
+
+      <div class="brand-name">
+        ALPHA DATA
+      </div>
+
+      <div class="brand-title">
+        HR Dashboard
+      </div>
+
+    </div>
+
+    <div class="header-actions">
+
+      <div class="hr-user">
+
+        <div class="user-avatar">
+          {{ hrManagerName.charAt(0).toUpperCase() }}
+        </div>
+
+        <div class="user-details">
+
+          <span class="user-label">
+            HR
+          </span>
+
+          <strong>
+            {{ hrManagerName }}
+          </strong>
+
+        </div>
+
+      </div>
+
+      <button
+        type="button"
+        class="logout-btn"
+        (click)="logout()">
+
+        Logout
+
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       MAIN DASHBOARD
+  ====================================================== -->
+
+  <main class="dashboard-container">
+
+
+    <!-- ===================================================
+         WELCOME
+    ==================================================== -->
+
+    <section class="welcome-section">
+
+      <span class="section-label">
+        HR DASHBOARD
+      </span>
+
+      <h1>
+        Welcome, {{ hrManagerName }}
+      </h1>
+
+      <p>
+        Review and provide final approval for employee joining
+        reports.
+      </p>
+
+    </section>
+
+
+    <!-- ===================================================
+         HR INFORMATION
+    ==================================================== -->
+
+    <section class="dashboard-card">
+
+      <div class="card-header">
+
+        <div>
+
+          <span class="section-label">
+            HR INFORMATION
+          </span>
+
+          <h2>
+            HR Information
+          </h2>
+
+          <p>
+            Your HR account information
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="info-grid">
+
+        <div class="info-item">
+
+          <span class="info-label">
+            HR Name
+          </span>
+
+          <strong>
+            {{ hrManagerName || '-' }}
+          </strong>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="info-label">
+            HR Manager ID
+          </span>
+
+          <strong>
+            {{ hrManagerId || '-' }}
+          </strong>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="info-label">
+            Role
+          </span>
+
+          <strong>
+            Human Resources
+          </strong>
+
+        </div>
+
+
+        <div class="info-item">
+
+          <span class="info-label">
+            Approval Level
+          </span>
+
+          <strong>
+            Final HR Approval
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- ===================================================
+         JOINING REQUESTS
+    ==================================================== -->
+
+    <section class="dashboard-card joining-card">
+
+      <div class="joining-content">
+
+        <span class="section-label">
+          JOINING REQUESTS
+        </span>
+
+        <h2>
+          Employee Joining Requests
+        </h2>
+
+        <p>
+          Joining reports approved by Level 2 and waiting for
+          final HR approval.
+        </p>
+
+
+        <div class="pending-count">
+
+          <span class="count-number">
+            {{ pendingReports.length }}
+          </span>
+
+          <span class="count-text">
+            Pending Requests
+          </span>
+
+        </div>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="primary-btn"
+        (click)="openPendingRequests()">
+
+        <span *ngIf="!loading">
+          View Pending Requests
+        </span>
+
+        <span *ngIf="loading">
+          Loading...
+        </span>
+
+        <span class="arrow">
+          →
+        </span>
+
+      </button>
+
+    </section>
+
+
+    <!-- ===================================================
+         REFRESH
+    ==================================================== -->
+
+    <div class="refresh-container">
+
+      <button
+        type="button"
+        class="refresh-btn"
+        (click)="refresh()"
+        [disabled]="loading">
+
+        <span *ngIf="!loading">
+          ↻ Refresh Reports
+        </span>
+
+        <span *ngIf="loading">
+          Loading Reports...
+        </span>
+
+      </button>
+
+    </div>
+
+
+    <!-- ===================================================
+         SUCCESS MESSAGE
+    ==================================================== -->
+
+    <div
+      class="success-message"
+      *ngIf="successMessage">
+
+      <span class="success-icon">
+        ✓
+      </span>
+
+      <span>
+        {{ successMessage }}
+      </span>
+
+    </div>
+
+
+    <!-- ===================================================
+         ERROR MESSAGE
+    ==================================================== -->
+
+    <div
+      class="error-message"
+      *ngIf="errorMessage">
+
+      <span class="error-icon">
+        !
+      </span>
+
+      <span>
+        {{ errorMessage }}
+      </span>
+
+    </div>
+
+  </main>
+
+</div>
+
+
+
+<!-- =========================================================
+     PENDING REQUESTS MODAL
+========================================================= -->
+
+<div
+  class="modal-overlay"
+  *ngIf="showPendingRequests"
+  (click)="closePendingRequests()">
+
+
+  <div
+    class="pending-modal"
+    (click)="$event.stopPropagation()">
+
+
+    <!-- ===================================================
+         MODAL HEADER
+    ==================================================== -->
+
+    <div class="modal-header">
+
+      <div>
+
+        <span class="section-label">
+          HR APPROVAL
+        </span>
+
+        <h2>
+          Pending Joining Requests
+        </h2>
+
+        <p>
+          Reports waiting for final HR approval.
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="close-btn"
+        (click)="closePendingRequests()">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <!-- ===================================================
+         MODAL BODY
+    ==================================================== -->
+
+    <div class="modal-body">
+
+
+      <!-- =================================================
+           LOADING
+      ================================================== -->
+
+      <div
+        class="loading-state"
+        *ngIf="loading">
+
+        <div class="loader"></div>
+
+        <h3>
+          Loading pending requests...
+        </h3>
+
+        <p>
+          Please wait while we retrieve the joining reports.
+        </p>
+
+      </div>
+
+
+      <!-- =================================================
+           ERROR
+      ================================================== -->
+
+      <div
+        class="modal-error"
+        *ngIf="!loading && errorMessage">
+
+        <div class="modal-error-icon">
+          !
+        </div>
+
+        <h3>
+          Unable to load requests
+        </h3>
+
+        <p>
+          {{ errorMessage }}
+        </p>
+
+        <button
+          type="button"
+          class="retry-btn"
+          (click)="loadPendingReports()">
+
+          Try Again
+
+        </button>
+
+      </div>
+
+
+      <!-- =================================================
+           EMPTY
+      ================================================== -->
+
+      <div
+        class="empty-state"
+        *ngIf="
+          !loading &&
+          !errorMessage &&
+          pendingReports.length === 0
+        ">
+
+        <div class="empty-icon">
+          ✓
+        </div>
+
+        <h3>
+          No Pending Requests
+        </h3>
+
+        <p>
+          There are currently no employee joining reports
+          waiting for final HR approval.
+        </p>
+
+        <button
+          type="button"
+          class="refresh-modal-btn"
+          (click)="loadPendingReports()">
+
+          ↻ Refresh
+
+        </button>
+
+      </div>
+
+
+      <!-- =================================================
+           REQUEST LIST
+      ================================================== -->
+
+      <div
+        class="request-list"
+        *ngIf="
+          !loading &&
+          !errorMessage &&
+          pendingReports.length > 0
+        ">
+
+
+        <article
+          class="request-card"
+          *ngFor="let report of pendingReports">
+
+
+          <!-- =================================================
+               EMPLOYEE HEADER
+          ================================================== -->
+
+          <div class="request-header">
+
+            <div class="employee-avatar">
+
+              {{
+                report.employeeName
+                  ? report.employeeName.charAt(0).toUpperCase()
+                  : '?'
+              }}
+
+            </div>
+
+
+            <div class="employee-heading">
+
+              <h3>
+                {{ report.employeeName || 'Unknown Employee' }}
+              </h3>
+
+              <span>
+                Employee ID:
+                <strong>
+                  {{ report.employeeId }}
+                </strong>
+              </span>
+
+            </div>
+
+
+            <span class="pending-badge">
+              Pending HR
+            </span>
+
+          </div>
+
+
+          <!-- =================================================
+               REQUEST DETAILS
+          ================================================== -->
+
+          <div class="request-details">
+
+
+            <div class="request-detail">
+
+              <span>
+                Designation
+              </span>
+
+              <strong>
+                {{ report.designation || '-' }}
+              </strong>
+
+            </div>
+
+
+            <div class="request-detail">
+
+              <span>
+                Department
+              </span>
+
+              <strong>
+                {{ report.department || '-' }}
+              </strong>
+
+            </div>
+
+
+            <div class="request-detail">
+
+              <span>
+                Joining Type
+              </span>
+
+              <strong>
+                {{ report.joiningType || '-' }}
+              </strong>
+
+            </div>
+
+
+            <div class="request-detail">
+
+              <span>
+                Joining Date
+              </span>
+
+              <strong>
+
+                <ng-container
+                  *ngIf="report.joinedDutyOn">
+
+                  {{ report.joinedDutyOn | date:'dd MMM yyyy' }}
+
+                </ng-container>
+
+                <ng-container
+                  *ngIf="!report.joinedDutyOn && report.joiningDutyOn">
+
+                  {{ report.joiningDutyOn | date:'dd MMM yyyy' }}
+
+                </ng-container>
+
+                <ng-container
+                  *ngIf="!report.joinedDutyOn && !report.joiningDutyOn">
+
+                  -
+
+                </ng-container>
+
+              </strong>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               APPROVAL STATUS
+          ================================================== -->
+
+          <div class="approval-status">
+
+            <div class="approval-step completed">
+
+              <div class="approval-dot">
+                ✓
+              </div>
+
+              <div>
+
+                <strong>
+                  Level 1
+                </strong>
+
+                <small>
+                  Approved
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="approval-line"></div>
+
+
+            <div class="approval-step completed">
+
+              <div class="approval-dot">
+                ✓
+              </div>
+
+              <div>
+
+                <strong>
+                  Level 2
+                </strong>
+
+                <small>
+                  Approved
+                </small>
+
+              </div>
+
+            </div>
+
+
+            <div class="approval-line"></div>
+
+
+            <div class="approval-step current">
+
+              <div class="approval-dot">
+                H
+              </div>
+
+              <div>
+
+                <strong>
+                  HR
+                </strong>
+
+                <small>
+                  Pending
+                </small>
+
+              </div>
+
+            </div>
+
+          </div>
+
+
+          <!-- =================================================
+               VIEW EMPLOYEE
+          ================================================== -->
+
+          <div class="request-actions">
+
+            <button
+              type="button"
+              class="view-btn"
+              (click)="viewReport(report)">
+
+              View Employee Details
+
+              <span>
+                →
+              </span>
+
+            </button>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- =========================================================
+     EMPLOYEE BIO DATA MODAL
+========================================================= -->
+
+<div
+  class="modal-overlay"
+  *ngIf="showReport"
+  (click)="closeReport()">
+
+
+  <div
+    class="report-modal"
+    (click)="$event.stopPropagation()">
+
+
+    <!-- ===================================================
+         REPORT HEADER
+    ==================================================== -->
+
+    <div class="report-header">
+
+      <div>
+
+        <span class="section-label">
+          EMPLOYEE BIO DATA
+        </span>
+
+        <h2>
+          {{ selectedReport?.employeeName || 'Employee' }}
+        </h2>
+
+        <p>
+          Complete employee joining information
+        </p>
+
+      </div>
+
+
+      <button
+        type="button"
+        class="close-btn"
+        (click)="closeReport()">
+
+        ×
+
+      </button>
+
+    </div>
+
+
+    <!-- ===================================================
+         REPORT BODY
+    ==================================================== -->
+
+    <div class="report-body">
+
+
+      <!-- =================================================
+           EMPLOYEE INFORMATION
+      ================================================== -->
+
+      <section class="bio-section">
+
+        <div class="bio-section-header">
+
+          <div class="bio-icon">
+            👤
+          </div>
+
+          <div>
+
+            <h3>
+              Employee Information
+            </h3>
+
+            <p>
+              Basic employee details
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="bio-grid">
+
+
+          <div class="bio-item">
+
+            <span>
+              Employee ID
+            </span>
+
+            <strong>
+              {{ selectedReport?.employeeId || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div class="bio-item">
+
+            <span>
+              Employee Name
+            </span>
+
+            <strong>
+              {{ selectedReport?.employeeName || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div class="bio-item">
+
+            <span>
+              Designation
+            </span>
+
+            <strong>
+              {{ selectedReport?.designation || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div class="bio-item">
+
+            <span>
+              Department
+            </span>
+
+            <strong>
+              {{ selectedReport?.department || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div class="bio-item">
+
+            <span>
+              Joining Type
+            </span>
+
+            <strong>
+              {{ selectedReport?.joiningType || '-' }}
+            </strong>
+
+          </div>
+
+
+          <div class="bio-item">
+
+            <span>
+              Salary
+            </span>
+
+            <strong>
+              {{ selectedReport?.salary != null ? selectedReport?.salary : '-' }}
+            </strong>
+
+          </div>
+
+
+          <!-- FORM DATE -->
+
+          <div class="bio-item">
+
+            <span>
+              Form Date
+            </span>
+
+            <strong>
+
+              <ng-container
+                *ngIf="selectedReport?.formDate">
+
+                {{ selectedReport?.formDate | date:'dd MMM yyyy' }}
+
+              </ng-container>
+
+              <ng-container
+                *ngIf="!selectedReport?.formDate">
+
+                -
+
+              </ng-container>
+
+            </strong>
+
+          </div>
+
+
+          <!-- JOINING DATE -->
+
+          <div class="bio-item">
+
+            <span>
+              Joining Date
+            </span>
+
+            <strong>
+
+              <ng-container
+                *ngIf="selectedReport?.joinedDutyOn">
+
+                {{ selectedReport?.joinedDutyOn | date:'dd MMM yyyy' }}
+
+              </ng-container>
+
+              <ng-container
+                *ngIf="
+                  !selectedReport?.joinedDutyOn &&
+                  selectedReport?.joiningDutyOn
+                ">
+
+                {{ selectedReport?.joiningDutyOn | date:'dd MMM yyyy' }}
+
+              </ng-container>
+
+              <ng-container
+                *ngIf="
+                  !selectedReport?.joinedDutyOn &&
+                  !selectedReport?.joiningDutyOn
+                ">
+
+                -
+
+              </ng-container>
+
+            </strong>
+
+          </div>
+
+
+          <!-- LEAVE DATE -->
+
+          <div class="bio-item">
+
+            <span>
+              Leave Applied Till
+            </span>
+
+            <strong>
+
+              <ng-container
+                *ngIf="selectedReport?.leaveAppliedTill">
+
+                {{ selectedReport?.leaveAppliedTill | date:'dd MMM yyyy' }}
+
+              </ng-container>
+
+              <ng-container
+                *ngIf="!selectedReport?.leaveAppliedTill">
+
+                N/A
+
+              </ng-container>
+
+            </strong>
+
+          </div>
+
+
+          <!-- CREATED DATE -->
+
+          <div class="bio-item">
+
+            <span>
+              Report Created
+            </span>
+
+            <strong>
+
+              <ng-container
+                *ngIf="selectedReport?.createdDate">
+
+                {{ selectedReport?.createdDate | date:'dd MMM yyyy' }}
+
+              </ng-container>
+
+              <ng-container
+                *ngIf="!selectedReport?.createdDate">
+
+                -
+
+              </ng-container>
+
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           JOINING INFORMATION
+      ================================================== -->
+
+      <section class="bio-section">
+
+        <div class="bio-section-header">
+
+          <div class="bio-icon">
+            📄
+          </div>
+
+          <div>
+
+            <h3>
+              Joining Information
+            </h3>
+
+            <p>
+              Additional information submitted by the employee
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="single-info-grid">
+
+          <div class="wide-info">
+
+            <span>
+              Delay Reason
+            </span>
+
+            <strong>
+              {{ selectedReport?.delayReason || 'N/A' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           APPROVAL HISTORY
+      ================================================== -->
+
+      <section class="bio-section">
+
+        <div class="bio-section-header">
+
+          <div class="bio-icon">
+            ✓
+          </div>
+
+          <div>
+
+            <h3>
+              Approval History
+            </h3>
+
+            <p>
+              Previous approval stages
+            </p>
+
+          </div>
+
+        </div>
+
+
+        <div class="history-list">
+
+
+          <!-- LEVEL 1 -->
+
+          <div class="history-item">
+
+            <div class="history-icon approved">
+              ✓
+            </div>
+
+            <div class="history-content">
+
+              <div class="history-title">
+
+                <strong>
+                  Level 1 Manager Approval
+                </strong>
+
+                <span class="approved-badge">
+                  Approved
+                </span>
+
+              </div>
+
+              <p>
+                Manager ID:
+                {{ selectedReport?.level1ManagerId || '-' }}
+              </p>
+
+
+              <small>
+
+                <ng-container
+                  *ngIf="selectedReport?.level1ApprovedDate">
+
+                  {{ selectedReport?.level1ApprovedDate | date:'dd MMM yyyy, hh:mm a' }}
+
+                </ng-container>
+
+                <ng-container
+                  *ngIf="!selectedReport?.level1ApprovedDate">
+
+                  Approval date unavailable
+
+                </ng-container>
+
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <!-- LEVEL 2 -->
+
+          <div class="history-item">
+
+            <div class="history-icon approved">
+              ✓
+            </div>
+
+            <div class="history-content">
+
+              <div class="history-title">
+
+                <strong>
+                  Level 2 Manager Approval
+                </strong>
+
+                <span class="approved-badge">
+                  Approved
+                </span>
+
+              </div>
+
+
+              <p>
+                Manager ID:
+                {{ selectedReport?.level2ManagerId || '-' }}
+              </p>
+
+
+              <small>
+
+                <ng-container
+                  *ngIf="selectedReport?.level2ApprovedDate">
+
+                  {{ selectedReport?.level2ApprovedDate | date:'dd MMM yyyy, hh:mm a' }}
+
+                </ng-container>
+
+                <ng-container
+                  *ngIf="!selectedReport?.level2ApprovedDate">
+
+                  Approval date unavailable
+
+                </ng-container>
+
+              </small>
+
+            </div>
+
+          </div>
+
+
+          <!-- HR -->
+
+          <div class="history-item current-history">
+
+            <div class="history-icon pending">
+              H
+            </div>
+
+            <div class="history-content">
+
+              <div class="history-title">
+
+                <strong>
+                  HR Final Approval
+                </strong>
+
+                <span class="pending-badge">
+                  Pending
+                </span>
+
+              </div>
+
+              <p>
+                Waiting for HR final decision
+              </p>
+
+              <small>
+                HR Manager:
+                {{ hrManagerName }}
+              </small>
+
+            </div>
+
+          </div>
+
+        </div>
+
+      </section>
+
+
+      <!-- =================================================
+           REJECTION REASON
+      ================================================== -->
+
+      <section class="rejection-section">
+
+        <label for="rejectionReason">
+          Rejection Reason
+        </label>
+
+        <textarea
+          id="rejectionReason"
+          name="rejectionReason"
+          [(ngModel)]="rejectionReason"
+          rows="4"
+          [disabled]="actionLoading"
+          placeholder="Enter the reason if you want to reject this joining report...">
+        </textarea>
+
+        <small>
+          A rejection reason is required when rejecting.
+        </small>
+
+      </section>
+
+    </div>
+
+
+    <!-- ===================================================
+         FOOTER
+    ==================================================== -->
+
+    <div class="report-footer">
+
+
+      <button
+        type="button"
+        class="secondary-btn"
+        (click)="closeReport()"
+        [disabled]="actionLoading">
+
+        Close
+
+      </button>
+
+
+      <button
+        type="button"
+        class="reject-btn"
+        (click)="rejectReport()"
+        [disabled]="actionLoading">
+
+        <span *ngIf="!actionLoading">
+          Reject
+        </span>
+
+        <span *ngIf="actionLoading">
+          Rejecting...
+        </span>
+
+      </button>
+
+
+      <button
+        type="button"
+        class="approve-btn"
+        (click)="approveReport()"
+        [disabled]="actionLoading">
+
+        <span *ngIf="!actionLoading">
+          ✓ Final Approve
+        </span>
+
+        <span *ngIf="actionLoading">
+          Approving...
+        </span>
+
+      </button>
+
+    </div>
+
+  </div>
+
+</div>

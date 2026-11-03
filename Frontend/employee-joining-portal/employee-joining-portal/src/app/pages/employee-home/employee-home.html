@@ -1,0 +1,1132 @@
+<div class="employee-page">
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="employee-header">
+
+    <div class="brand">
+
+      <h1>Alpha Data</h1>
+
+      <p>Employee Portal</p>
+
+    </div>
+
+
+    <div class="header-right">
+
+      <span class="employee-name">
+        {{ employee.name }}
+      </span>
+
+      <button
+        class="logout-button"
+        type="button"
+        (click)="logout()"
+      >
+        Logout
+      </button>
+
+    </div>
+
+  </header>
+
+
+  <!-- =========================
+       MAIN CONTENT
+  ========================== -->
+
+  <main class="employee-content">
+
+
+    <!-- =========================
+         WELCOME SECTION
+    ========================== -->
+
+    <section class="welcome-card">
+
+      <div>
+
+        <p class="welcome-label">
+          Employee Dashboard
+        </p>
+
+        <h2>
+          Welcome, {{ employee.name }}
+        </h2>
+
+        <p class="employee-id">
+          Employee ID: {{ employee.employeeId }}
+        </p>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         EMPLOYEE INFORMATION
+    ========================== -->
+
+    <section class="information-card">
+
+      <div class="section-title">
+
+        <div>
+
+          <h2>
+            Employee Information
+          </h2>
+
+          <p>
+            Your basic employment information
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="employee-details">
+
+        <div class="detail-item">
+
+          <span>
+            Employee ID
+          </span>
+
+          <strong>
+            {{ employee.employeeId }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Name
+          </span>
+
+          <strong>
+            {{ employee.name }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Designation
+          </span>
+
+          <strong>
+            {{ employee.designation }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Department
+          </span>
+
+          <strong>
+            {{ employee.department }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Email
+          </span>
+
+          <strong>
+            {{ employee.email }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Phone
+          </span>
+
+          <strong>
+            {{ employee.phone }}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-item">
+
+          <span>
+            Location
+          </span>
+
+          <strong>
+            {{ employee.location }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         JOINING REPORT SUMMARY
+    ========================== -->
+
+    <section class="report-summary-card">
+
+      <div class="section-title">
+
+        <div>
+
+          <h2>
+            Joining Report Summary
+          </h2>
+
+          <p>
+            Overview of your joining report submissions
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="summary-grid">
+
+
+        <!-- TOTAL -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Total Reports
+          </span>
+
+          <strong class="summary-number">
+            {{ totalReports }}
+          </strong>
+
+        </div>
+
+
+        <!-- ACCEPTED -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Accepted
+          </span>
+
+          <strong class="summary-number accepted">
+            {{ acceptedReports }}
+          </strong>
+
+        </div>
+
+
+        <!-- REJECTED -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Rejected
+          </span>
+
+          <strong class="summary-number rejected">
+            {{ rejectedReports }}
+          </strong>
+
+        </div>
+
+
+        <!-- PENDING -->
+
+        <div class="summary-item">
+
+          <span class="summary-label">
+            Pending
+          </span>
+
+          <strong class="summary-number pending">
+            {{ pendingReports }}
+          </strong>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         JOINING FORM CARD
+    ========================== -->
+
+    <section class="joining-card">
+
+      <div class="joining-content">
+
+        <div>
+
+          <span class="joining-label">
+            Employee Requirement
+          </span>
+
+          <h2>
+            Joining Report Form
+          </h2>
+
+          <p>
+            Submit your joining details after returning from vacation or when joining the company.
+          </p>
+
+
+          <!-- APPROVAL STATUS -->
+
+          <div class="approval-status-section">
+
+            <span class="status-label">
+              Approval Status
+            </span>
+
+
+            <span
+              class="status-badge"
+              [ngClass]="{
+                pending: approvalStatus === 'Pending',
+                approved: approvalStatus === 'Approved',
+                rejected: approvalStatus === 'Rejected'
+              }"
+            >
+
+              {{ approvalStatus }}
+
+            </span>
+
+          </div>
+
+
+          <!-- REJECTION REASON -->
+
+          <div
+            class="rejection-reason"
+            *ngIf="
+              approvalStatus === 'Rejected'
+              && rejectionReason
+            "
+          >
+
+            <strong>
+              Rejection Reason
+            </strong>
+
+            <p>
+              {{ rejectionReason }}
+            </p>
+
+          </div>
+
+
+          <!-- FORM STATUS -->
+
+          <div class="form-status">
+
+            <span>
+              Status
+            </span>
+
+            <strong
+              [class.draft]="
+                formStatus === 'Draft Saved'
+              "
+              [class.submitted]="
+                formStatus === 'Submitted'
+              "
+            >
+
+              {{ formStatus }}
+
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <!-- OPEN FORM BUTTON -->
+
+        <button
+          class="joining-button"
+          type="button"
+          (click)="openJoiningForm()"
+        >
+
+          Open Joining Form
+
+          <span>
+            →
+          </span>
+
+        </button>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         PREVIOUS JOINING REPORTS
+    ========================== -->
+
+    <section class="previous-reports-card">
+
+      <div class="section-title">
+
+        <div>
+
+          <h2>
+            Previous Joining Reports
+          </h2>
+
+          <p>
+            View your previously submitted joining forms
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <!-- NO REPORTS -->
+
+      <div
+        class="no-reports"
+        *ngIf="joiningReports.length === 0"
+      >
+
+        <p>
+          No previous joining reports found.
+        </p>
+
+      </div>
+
+
+      <!-- REPORT LIST -->
+
+      <div
+        class="reports-table-container"
+        *ngIf="joiningReports.length > 0"
+      >
+
+        <table class="reports-table">
+
+          <thead>
+
+            <tr>
+
+              <th>
+                Report ID
+              </th>
+
+              <th>
+                Form Date
+              </th>
+
+              <th>
+                Joining Date
+              </th>
+
+              <th>
+                Status
+              </th>
+
+              <th>
+                Action
+              </th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            <tr
+              *ngFor="let report of joiningReports"
+            >
+
+              <!-- REPORT ID -->
+
+              <td>
+
+                {{ report.id }}
+
+              </td>
+
+
+              <!-- FORM DATE -->
+
+              <td>
+
+                {{ report.formDate | date:'yyyy-MM-dd' }}
+
+              </td>
+
+
+              <!-- JOINING DATE -->
+
+              <td>{{ report.joinedDutyOn | date:'yyyy-MM-dd' }}</td>
+
+
+              <!-- STATUS -->
+
+              <td>
+
+                <span
+                  class="report-status"
+                  [ngClass]="{
+                    pending:
+                      (report.approvalStatus || 'Pending')
+                      .toLowerCase() === 'pending',
+
+                    approved:
+                      (report.approvalStatus || '')
+                      .toLowerCase() === 'approved',
+
+                    rejected:
+                      (report.approvalStatus || '')
+                      .toLowerCase() === 'rejected'
+                  }"
+                >
+
+                  {{ report.approvalStatus || 'Pending' }}
+
+                </span>
+
+              </td>
+
+
+              <!-- VIEW -->
+
+              <td>
+
+                <button
+                  type="button"
+                  class="view-report-button"
+                  (click)="viewPreviousReport(report)"
+                >
+
+                  View
+
+                </button>
+
+              </td>
+
+            </tr>
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- =====================================================
+       JOINING FORM POPUP
+  ====================================================== -->
+
+  <div
+    class="modal-overlay"
+    *ngIf="showJoiningForm"
+    (click)="closeJoiningForm()"
+  >
+
+    <div
+      class="joining-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+
+      <!-- MODAL HEADER -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="modal-label">
+            Alpha Data PJSC
+          </span>
+
+          <h2>
+            Joining Report Form
+          </h2>
+
+          <p>
+            Employee joining details
+          </p>
+
+        </div>
+
+
+        <!-- CLOSE BUTTON -->
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closeJoiningForm()"
+        >
+
+          ×
+
+        </button>
+
+      </div>
+
+
+      <!-- FORM -->
+
+      <form
+        class="joining-form"
+        (ngSubmit)="saveJoiningForm()"
+      >
+
+
+        <!-- 1. EMPLOYEE NAME -->
+
+        <div class="form-group">
+
+          <label>
+            1. Name of Employee
+          </label>
+
+          <input
+            type="text"
+            name="employeeName"
+            [(ngModel)]="joiningForm.employeeName"
+            placeholder="Enter employee name"
+          />
+
+        </div>
+
+
+        <!-- 2. DESIGNATION -->
+
+        <div class="form-group">
+
+          <label>
+            2. Designation
+          </label>
+
+          <input
+            type="text"
+            name="designation"
+            [(ngModel)]="joiningForm.designation"
+            placeholder="Enter designation"
+          />
+
+        </div>
+
+
+        <!-- 3. DEPARTMENT -->
+
+        <div class="form-group">
+
+          <label>
+            3. Department
+          </label>
+
+          <input
+            type="text"
+            name="department"
+            [(ngModel)]="joiningForm.department"
+            placeholder="Enter department"
+          />
+
+        </div>
+
+
+        <!-- 4. JOINED DUTY -->
+
+        <div class="form-group">
+
+          <label>
+            4. Joined Duty On
+          </label>
+
+          <input
+            type="date"
+            name="joinedDutyOn"
+            [(ngModel)]="joiningForm.joinedDutyOn"
+          />
+
+        </div>
+
+
+        <!-- 5. TYPE OF JOINING -->
+
+        <div class="form-group">
+
+          <label>
+            5. Type of Joining
+          </label>
+
+
+          <div class="radio-group">
+
+            <label class="radio-option">
+
+              <input
+                type="radio"
+                name="joiningType"
+                value="After Vacation"
+                [(ngModel)]="joiningForm.joiningType"
+              />
+
+              <span>
+                After Vacation
+              </span>
+
+            </label>
+
+
+            <label class="radio-option">
+
+              <input
+                type="radio"
+                name="joiningType"
+                value="First Time"
+                [(ngModel)]="joiningForm.joiningType"
+              />
+
+              <span>
+                First Time
+              </span>
+
+            </label>
+
+          </div>
+
+        </div>
+
+
+        <!-- 6. LEAVE APPLIED TILL -->
+
+        <div
+          class="form-group"
+          *ngIf="
+            joiningForm.joiningType === 'After Vacation'
+          "
+        >
+
+          <label>
+            6. If after vacation, leave applied till
+          </label>
+
+          <input
+            type="date"
+            name="leaveAppliedTill"
+            [(ngModel)]="joiningForm.leaveAppliedTill"
+          />
+
+        </div>
+
+
+        <!-- 7. DELAY REASON -->
+
+        <div class="form-group">
+
+          <label>
+            7. If delayed, reason for delay
+          </label>
+
+          <textarea
+            name="delayReason"
+            [(ngModel)]="joiningForm.delayReason"
+            placeholder="Enter reason for delay"
+          ></textarea>
+
+        </div>
+
+
+        <!-- DATE -->
+
+        <div class="form-group">
+
+          <label>
+            Date
+          </label>
+
+          <input
+            type="date"
+            name="date"
+            [(ngModel)]="joiningForm.date"
+          />
+
+        </div>
+
+
+        <!-- SIGNATURE -->
+
+        <div class="form-group">
+
+          <label>
+            Signature of Employee
+          </label>
+
+          <input
+            type="text"
+            name="signature"
+            [(ngModel)]="joiningForm.signature"
+            placeholder="Enter your name as signature"
+          />
+
+        </div>
+
+
+        <!-- FORM BUTTONS -->
+
+        <div class="form-actions">
+
+          <button
+            type="button"
+            class="draft-button"
+            (click)="saveDraft()"
+          >
+            Save Draft
+          </button>
+
+
+          <button
+            type="button"
+            class="clear-button"
+            (click)="clearForm()"
+          >
+            Clear
+          </button>
+
+
+          <button
+            type="submit"
+            class="save-button"
+          >
+            Save
+          </button>
+
+        </div>
+
+      </form>
+
+    </div>
+
+  </div>
+
+
+  <!-- =====================================================
+       PREVIOUS REPORT VIEW POPUP
+  ====================================================== -->
+
+  <div
+    class="modal-overlay"
+    *ngIf="showPreviousReport"
+    (click)="closePreviousReport()"
+  >
+
+    <div
+      class="previous-report-modal"
+      (click)="$event.stopPropagation()"
+    >
+
+      <!-- MODAL HEADER -->
+
+      <div class="modal-header">
+
+        <div>
+
+          <span class="modal-label">
+            Alpha Data PJSC
+          </span>
+
+          <h2>
+            Previous Joining Report
+          </h2>
+
+          <p>
+            View submitted joining report
+          </p>
+
+        </div>
+
+
+        <button
+          type="button"
+          class="close-button"
+          (click)="closePreviousReport()"
+        >
+          ×
+        </button>
+
+      </div>
+
+
+      <!-- REPORT DETAILS -->
+
+      <div
+        class="previous-report-content"
+        *ngIf="selectedReport"
+      >
+
+        <!-- STATUS -->
+
+        <div class="previous-report-status">
+
+          <span>
+            Approval Status
+          </span>
+
+          <strong
+            class="report-status"
+            [ngClass]="{
+              pending:
+                (selectedReport.approvalStatus || 'Pending')
+                .toLowerCase() === 'pending',
+
+              approved:
+                (selectedReport.approvalStatus || '')
+                .toLowerCase() === 'approved',
+
+              rejected:
+                (selectedReport.approvalStatus || '')
+                .toLowerCase() === 'rejected'
+            }"
+          >
+
+            {{ selectedReport.approvalStatus || 'Pending' }}
+
+          </strong>
+
+        </div>
+
+
+        <!-- REPORT ID -->
+
+        <div class="previous-detail">
+
+          <span>
+            Report ID
+          </span>
+
+          <strong>
+            {{ selectedReport.id }}
+          </strong>
+
+        </div>
+
+
+        <!-- EMPLOYEE NAME -->
+
+        <div class="previous-detail">
+
+          <span>
+            Name of Employee
+          </span>
+
+          <strong>
+            {{ selectedReport.employeeName || '-' }}
+          </strong>
+
+        </div>
+
+
+        <!-- DESIGNATION -->
+
+        <div class="previous-detail">
+
+          <span>
+            Designation
+          </span>
+
+          <strong>
+            {{ selectedReport.designation || '-' }}
+          </strong>
+
+        </div>
+
+
+        <!-- DEPARTMENT -->
+
+        <div class="previous-detail">
+
+          <span>
+            Department
+          </span>
+
+          <strong>
+            {{ selectedReport.department || '-' }}
+          </strong>
+
+        </div>
+
+
+        <!-- JOINED DUTY -->
+
+        <div class="previous-detail">
+
+          <span>
+            Joined Duty On
+          </span>
+
+          <strong>
+            {{ selectedReport.joinedDutyOn || '-' }}
+          </strong>
+
+        </div>
+
+
+        <!-- JOINING TYPE -->
+
+        <div class="previous-detail">
+
+          <span>
+            Type of Joining
+          </span>
+
+          <strong>
+            {{ selectedReport.joiningType || '-' }}
+          </strong>
+
+        </div>
+
+
+        <!-- LEAVE APPLIED TILL -->
+
+        <div
+          class="previous-detail"
+          *ngIf="selectedReport.leaveAppliedTill"
+        >
+
+          <span>
+            Leave Applied Till
+          </span>
+
+          <strong>
+            {{ selectedReport.leaveAppliedTill }}
+          </strong>
+
+        </div>
+
+
+        <!-- DELAY REASON -->
+
+        <div
+          class="previous-detail full-width"
+          *ngIf="selectedReport.delayReason"
+        >
+
+          <span>
+            Reason for Delay
+          </span>
+
+          <strong>
+            {{ selectedReport.delayReason }}
+          </strong>
+
+        </div>
+
+
+        <!-- FORM DATE -->
+
+        <div class="previous-detail">
+
+          <span>
+            Form Date
+          </span>
+
+          <strong>
+            {{ selectedReport.formDate || '-' }}
+          </strong>
+
+        </div>
+
+
+        <!-- SIGNATURE -->
+
+        <div class="previous-detail">
+
+          <span>
+            Employee Signature
+          </span>
+
+          <strong>
+            {{ selectedReport.signature || '-' }}
+          </strong>
+
+        </div>
+
+
+        <!-- REJECTION REASON -->
+
+        <div
+          class="previous-rejection"
+          *ngIf="
+            (selectedReport.approvalStatus || '')
+              .toLowerCase() === 'rejected'
+            && selectedReport.rejectionReason
+          "
+        >
+
+          <strong>
+            Rejection Reason
+          </strong>
+
+          <p>
+            {{ selectedReport.rejectionReason }}
+          </p>
+
+        </div>
+
+
+        <!-- CLOSE -->
+
+        <div class="previous-report-actions">
+
+          <button
+            type="button"
+            class="close-report-button"
+            (click)="closePreviousReport()"
+          >
+
+            Close
+
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>

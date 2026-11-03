@@ -1,0 +1,394 @@
+<div class="manager-page">
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+  <header class="top-header">
+    <div class="brand">
+      <h1>Alpha Data</h1>
+      <span>Level 1 Manager Portal</span>
+    </div>
+
+    <div class="header-right">
+      <span class="manager-name">
+        {{ manager?.name || 'Manager' }}
+      </span>
+
+      <button type="button" class="logout-btn" (click)="logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- =====================================================
+       MAIN DASHBOARD
+  ====================================================== -->
+  <main class="dashboard-container">
+    <!-- ===================================================
+         WELCOME
+    ==================================================== -->
+    <section class="welcome-section">
+      <span class="section-label"> MANAGER DASHBOARD </span>
+
+      <h2>Welcome, {{ manager?.name || 'Manager' }}</h2>
+
+      <p>Manage employee joining requests and approvals.</p>
+    </section>
+
+    <!-- ===================================================
+         MANAGER INFORMATION
+    ==================================================== -->
+    <section class="dashboard-card">
+      <div class="card-header">
+        <div>
+          <span class="section-label"> MANAGER INFORMATION </span>
+
+          <h3>Manager Information</h3>
+
+          <p>Your manager account information</p>
+        </div>
+      </div>
+
+      <div class="manager-info-grid">
+        <!-- Name -->
+        <div class="info-item">
+          <span class="info-label"> Name </span>
+
+          <strong>
+            {{ manager?.name || '-' }}
+          </strong>
+        </div>
+
+        <!-- Manager ID -->
+        <div class="info-item">
+          <span class="info-label"> Manager ID </span>
+
+          <strong>
+            {{ manager?.managerId || '-' }}
+          </strong>
+        </div>
+
+        <!-- Manager Level -->
+        <div class="info-item">
+          <span class="info-label"> Manager Level </span>
+
+          <strong>
+            {{ manager?.managerLevel || 'Level 1' }}
+          </strong>
+        </div>
+
+        <!-- Manager Key -->
+        <div class="info-item">
+          <span class="info-label"> Manager Key </span>
+
+          <strong>
+            {{ manager?.managerKey || '-' }}
+          </strong>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================================================
+         JOINING REQUESTS
+    ==================================================== -->
+    <section class="dashboard-card joining-section">
+      <div class="joining-content">
+        <span class="section-label"> JOINING REQUESTS </span>
+
+        <h3>Employee Joining Requests</h3>
+
+        <p>Employee joining reports waiting for your approval.</p>
+      </div>
+
+      <button type="button" class="primary-btn" (click)="openPendingRequests()">
+        View Pending Requests
+
+        <span class="arrow"> → </span>
+      </button>
+    </section>
+  </main>
+
+  <!-- =====================================================
+       PENDING REQUESTS MODAL
+  ====================================================== -->
+  <div class="modal-overlay" *ngIf="showPendingRequests">
+    <div class="pending-modal">
+      <!-- =================================================
+           MODAL HEADER
+      ================================================== -->
+      <div class="modal-header">
+        <div>
+          <span class="section-label"> EMPLOYEE APPROVAL </span>
+
+          <h2>Pending Joining Requests</h2>
+
+          <p>Employee reports waiting for your approval.</p>
+        </div>
+
+        <button type="button" class="close-btn" (click)="closePendingRequests()" aria-label="Close">
+          ×
+        </button>
+      </div>
+
+      <!-- =================================================
+           MODAL BODY
+      ================================================== -->
+      <div class="modal-body">
+        <!-- ===============================================
+             LOADING
+        ================================================ -->
+        <div class="loading-state" *ngIf="loading">
+          <div class="loader"></div>
+
+          <p>Loading pending requests...</p>
+        </div>
+
+        <!-- ===============================================
+             NO REQUESTS
+        ================================================ -->
+        <div
+          class="empty-state"
+          *ngIf="!loading && (!pendingReports || pendingReports.length === 0)"
+        >
+          <div class="empty-icon">✓</div>
+
+          <h3>No Pending Requests</h3>
+
+          <p>There are currently no employee joining requests waiting for approval.</p>
+        </div>
+
+        <!-- ===============================================
+             REQUEST LIST
+        ================================================ -->
+        <div class="request-list" *ngIf="!loading && pendingReports && pendingReports.length > 0">
+          <!-- =============================================
+               SINGLE REQUEST
+          ============================================== -->
+          <div class="request-card" *ngFor="let report of pendingReports">
+            <!-- Employee information -->
+            <div class="request-main">
+              <!-- Employee ID -->
+              <div class="request-id">
+                <span> Employee ID </span>
+
+                <strong>
+                  {{ report.employeeId }}
+                </strong>
+              </div>
+
+              <!-- Employee details -->
+              <div class="request-person">
+                <!-- Employee name -->
+                <div>
+                  <span> Employee Name </span>
+
+                  <strong>
+                    {{ report.employeeName }}
+                  </strong>
+                </div>
+
+                <!-- Designation -->
+                <div>
+                  <span> Designation </span>
+
+                  <strong>
+                    {{ report.designation || '-' }}
+                  </strong>
+                </div>
+              </div>
+            </div>
+
+            <!-- View button -->
+            <button type="button" class="view-form-btn" (click)="viewReport(report)">
+              View Form
+
+              <span> → </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =====================================================
+       JOINING REPORT DETAIL MODAL
+  ====================================================== -->
+  <div class="modal-overlay" *ngIf="showReport">
+    <div class="joining-modal">
+      <!-- =================================================
+           REPORT HEADER
+      ================================================== -->
+      <div class="joining-modal-header">
+        <div>
+          <span class="section-label"> EMPLOYEE REQUIREMENT </span>
+
+          <h2>Joining Request</h2>
+
+          <p>Employee joining form</p>
+        </div>
+
+        <button type="button" class="close-btn" (click)="closeReport()" aria-label="Close">
+          ×
+        </button>
+      </div>
+
+      <!-- =================================================
+           REPORT BODY
+      ================================================== -->
+      <div class="joining-modal-body">
+        <div class="details-grid">
+          <!-- =============================================
+               EMPLOYEE ID
+          ============================================== -->
+          <div class="detail-card">
+            <span> EMPLOYEE ID </span>
+
+            <strong>
+              {{ selectedReport?.employeeId || '-' }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               EMPLOYEE NAME
+          ============================================== -->
+          <div class="detail-card">
+            <span> EMPLOYEE NAME </span>
+
+            <strong>
+              {{ selectedReport?.employeeName || '-' }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               DESIGNATION
+          ============================================== -->
+          <div class="detail-card">
+            <span> DESIGNATION </span>
+
+            <strong>
+              {{ selectedReport?.designation || '-' }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               DEPARTMENT
+          ============================================== -->
+          <div class="detail-card">
+            <span> DEPARTMENT </span>
+
+            <strong>
+              {{ selectedReport?.department || '-' }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               JOINING TYPE
+          ============================================== -->
+          <div class="detail-card">
+            <span> JOINING TYPE </span>
+
+            <strong>
+              {{ selectedReport?.joiningType || '-' }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               JOINING DUTY ON
+          ============================================== -->
+          <div class="detail-card">
+            <span> JOINING DUTY ON </span>
+
+            <strong>
+              {{
+                selectedReport?.joinedDutyOn
+                  ? (selectedReport?.joinedDutyOn | date: 'dd MMM yyyy')
+                  : '-'
+              }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               FORM DATE
+          ============================================== -->
+          <div class="detail-card">
+            <span> FORM DATE </span>
+
+            <strong>
+              {{
+                selectedReport?.formDate ? (selectedReport?.formDate | date: 'dd MMM yyyy') : '-'
+              }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               LEAVE APPLIED TILL
+          ============================================== -->
+          <div class="detail-card">
+            <span> LEAVE APPLIED TILL </span>
+
+            <strong>
+              {{
+                selectedReport?.leaveAppliedTill
+                  ? (selectedReport?.leaveAppliedTill | date: 'dd MMM yyyy')
+                  : 'N/A'
+              }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               DELAY REASON
+          ============================================== -->
+          <div class="detail-card full-width">
+            <span> DELAY REASON </span>
+
+            <strong>
+              {{ selectedReport?.delayReason || 'N/A' }}
+            </strong>
+          </div>
+
+          <!-- =============================================
+               REJECTION REASON
+          ============================================== -->
+          <div class="detail-card full-width rejection-card">
+            <label for="rejectionReason"> REJECTION REASON </label>
+
+            <textarea
+              id="rejectionReason"
+              name="rejectionReason"
+              [(ngModel)]="rejectionReason"
+              rows="4"
+              placeholder="Enter rejection reason if you want to reject this joining request..."
+            >
+            </textarea>
+          </div>
+        </div>
+
+        <!-- =================================================
+             ACTION BUTTONS
+        ================================================== -->
+        <div class="action-area">
+          <!-- Reject -->
+          <button
+            type="button"
+            class="reject-btn"
+            [disabled]="actionLoading"
+            (click)="rejectReport()"
+          >
+            <span *ngIf="!actionLoading"> Reject </span>
+
+            <span *ngIf="actionLoading"> Rejecting... </span>
+          </button>
+
+          <!-- Accept -->
+          <button
+            type="button"
+            class="accept-btn"
+            [disabled]="actionLoading"
+            (click)="approveReport()"
+          >
+            <span *ngIf="!actionLoading"> Accept </span>
+
+            <span *ngIf="actionLoading"> Accepting... </span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

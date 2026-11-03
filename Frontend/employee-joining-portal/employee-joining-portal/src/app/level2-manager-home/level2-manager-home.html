@@ -1,0 +1,532 @@
+<div class="page-container">
+  <!-- ================================================= -->
+  <!-- DASHBOARD HEADER -->
+  <!-- ================================================= -->
+
+  <div class="dashboard-header">
+    <div>
+      <div class="eyebrow">MANAGER DASHBOARD</div>
+
+      <h1>Welcome, {{ managerName }}</h1>
+
+      <p>Review employee joining requests waiting for Level 2 approval.</p>
+    </div>
+  </div>
+
+  <!-- ================================================= -->
+  <!-- MANAGER INFORMATION -->
+  <!-- ================================================= -->
+
+  <section class="manager-card">
+    <div class="section-heading">
+      <div class="eyebrow">MANAGER INFORMATION</div>
+
+      <h2>Manager Information</h2>
+
+      <p>Your manager account information</p>
+    </div>
+
+    <div class="manager-grid">
+      <div class="info-box">
+        <span class="info-label"> NAME </span>
+
+        <strong>
+          {{ managerName }}
+        </strong>
+      </div>
+
+      <div class="info-box">
+        <span class="info-label"> MANAGER ID </span>
+
+        <strong>
+          {{ managerId }}
+        </strong>
+      </div>
+
+      <div class="info-box">
+        <span class="info-label"> MANAGER LEVEL </span>
+
+        <strong> Level 2 </strong>
+      </div>
+
+      <div class="info-box">
+        <span class="info-label"> MANAGER KEY </span>
+
+        <strong> MGR-{{ managerId }} </strong>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================================================= -->
+  <!-- JOINING REQUESTS -->
+  <!-- ================================================= -->
+
+  <section class="requests-card">
+    <div class="requests-header">
+      <div>
+        <div class="eyebrow">JOINING REQUESTS</div>
+
+        <h2>Employee Joining Requests</h2>
+
+        <p>Employee joining reports waiting for your approval.</p>
+      </div>
+
+      <button
+        type="button"
+        class="pending-button"
+        (click)="openPendingRequests()"
+        [disabled]="loading"
+      >
+        View Pending Requests
+
+        <span> → </span>
+      </button>
+    </div>
+
+    <!-- Error -->
+
+    <div class="error-message" *ngIf="errorMessage">
+      {{ errorMessage }}
+    </div>
+
+    <!-- Success -->
+
+    <div class="success-message" *ngIf="successMessage">
+      {{ successMessage }}
+    </div>
+  </section>
+</div>
+
+<!-- ===================================================== -->
+<!-- PENDING REQUESTS POPUP -->
+<!-- ===================================================== -->
+
+<div class="modal-overlay" *ngIf="showPendingRequests" (click)="closePendingRequests()">
+  <div class="pending-modal" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+
+    <div class="modal-header">
+      <div>
+        <div class="eyebrow">EMPLOYEE APPROVAL</div>
+
+        <h2>Pending Joining Requests</h2>
+
+        <p>Employee reports waiting for your approval.</p>
+      </div>
+
+      <button type="button" class="close-button" (click)="closePendingRequests()">×</button>
+    </div>
+
+    <!-- Modal Body -->
+
+    <div class="modal-body">
+      <!-- Loading -->
+
+      <div class="loading-container" *ngIf="loading">
+        <div class="spinner"></div>
+
+        <p>Loading pending joining requests...</p>
+      </div>
+
+      <!-- Error -->
+
+      <div class="modal-error" *ngIf="!loading && errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <!-- No Requests -->
+
+      <div class="empty-state" *ngIf="!loading && !errorMessage && reports.length === 0">
+        <h3>No Pending Requests</h3>
+
+        <p>There are currently no employee joining requests waiting for your approval.</p>
+      </div>
+
+      <!-- Request List -->
+
+      <div class="request-list" *ngIf="!loading && reports.length > 0">
+        <div
+  class="request-row"
+  *ngFor="
+    let report of reports;
+    trackBy: trackByReportId
+  "
+>
+
+  <!-- EMPLOYEE INFORMATION -->
+
+  <div class="request-info">
+
+    <div class="request-field">
+
+      <span>
+        EMPLOYEE ID
+      </span>
+
+      <strong>
+        {{ report.employeeId }}
+      </strong>
+
+    </div>
+
+
+    <div class="request-field">
+
+      <span>
+        EMPLOYEE NAME
+      </span>
+
+      <strong>
+        {{ report.employeeName }}
+      </strong>
+
+    </div>
+
+
+    <div class="request-field designation-field">
+
+      <span>
+        DESIGNATION
+      </span>
+
+      <strong>
+        {{ report.designation }}
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <!-- APPROVAL STATUS -->
+
+  <div class="approval-status">
+
+    <!-- LEVEL 1 -->
+
+    <div class="approval-step">
+
+      <div class="status-circle approved">
+        ✓
+      </div>
+
+      <div class="status-content">
+
+        <strong>
+          Level 1
+        </strong>
+
+        <span>
+          {{ getLevel1Status(report) }}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="status-line"></div>
+
+
+    <!-- LEVEL 2 -->
+
+    <div class="approval-step">
+
+      <div class="status-circle pending">
+        2
+      </div>
+
+      <div class="status-content">
+
+        <strong>
+          Level 2
+        </strong>
+
+        <span>
+          {{ getLevel2Status(report) }}
+        </span>
+
+      </div>
+
+    </div>
+
+
+    <div class="status-line"></div>
+
+
+    <!-- HR -->
+
+    <div class="approval-step">
+
+      <div class="status-circle pending">
+        H
+      </div>
+
+      <div class="status-content">
+
+        <strong>
+          HR
+        </strong>
+
+        <span>
+          {{ getHrStatus(report) }}
+        </span>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+  <!-- VIEW FORM -->
+
+  <button
+    type="button"
+    class="view-form-button"
+    (click)="openReport(report)"
+  >
+
+    View Form
+
+    <span>
+      →
+    </span>
+
+  </button>
+
+</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===================================================== -->
+<!-- EMPLOYEE JOINING REPORT POPUP -->
+<!-- ===================================================== -->
+
+<div
+  class="modal-overlay report-overlay"
+  *ngIf="showReportModal && selectedReport"
+  (click)="closeReport()"
+>
+  <div class="report-modal" (click)="$event.stopPropagation()">
+    <!-- ================================================= -->
+    <!-- REPORT HEADER -->
+    <!-- ================================================= -->
+
+    <div class="report-header">
+      <div>
+        <div class="eyebrow">JOINING REQUEST</div>
+
+        <h2>
+          {{ selectedReport.employeeName }}
+        </h2>
+
+        <p>
+          Employee ID:
+          {{ selectedReport.employeeId }}
+        </p>
+      </div>
+
+      <div class="status-badge">
+        {{ selectedReport.approvalStatus }}
+      </div>
+
+      <button type="button" class="close-button" (click)="closeReport()" [disabled]="actionLoading">
+        ×
+      </button>
+    </div>
+
+    <!-- ================================================= -->
+    <!-- REPORT CONTENT -->
+    <!-- ================================================= -->
+
+    <div class="report-body">
+      <!-- EMPLOYEE DETAILS -->
+
+      <section class="report-section">
+        <h3>Employee Details</h3>
+
+        <div class="details-grid">
+          <div class="detail-box">
+            <span> EMPLOYEE ID </span>
+
+            <strong>
+              {{ selectedReport.employeeId }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> EMPLOYEE NAME </span>
+
+            <strong>
+              {{ selectedReport.employeeName }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> DESIGNATION </span>
+
+            <strong>
+              {{ selectedReport.designation }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> DEPARTMENT </span>
+
+            <strong>
+              {{ selectedReport.department }}
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- JOINING DETAILS -->
+
+      <section class="report-section">
+        <h3>Joining Details</h3>
+
+        <div class="details-grid">
+          <div class="detail-box">
+            <span> JOINING TYPE </span>
+
+            <strong>
+              {{ selectedReport.joiningType }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> JOINING DUTY ON </span>
+
+            <strong>
+              {{ selectedReport.joinedDutyOn }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> LEAVE APPLIED TILL </span>
+
+            <strong>
+              {{ selectedReport.leaveAppliedTill }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> FORM DATE </span>
+
+            <strong>
+              {{ selectedReport.formDate }}
+            </strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ADDITIONAL INFORMATION -->
+
+      <section class="report-section">
+        <h3>Additional Information</h3>
+
+        <div class="details-grid">
+          <div class="detail-box full-width">
+            <span> DELAY REASON </span>
+
+            <strong>
+              {{ selectedReport.delayReason || 'N/A' }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> LEVEL 1 MANAGER </span>
+
+            <strong>
+              {{ selectedReport.level1ManagerId || 'N/A' }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> LEVEL 2 MANAGER </span>
+
+            <strong>
+              {{ selectedReport.level2ManagerId || managerId }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> SIGNATURE </span>
+
+            <strong>
+              {{ selectedReport.signature || 'N/A' }}
+            </strong>
+          </div>
+
+          <div class="detail-box">
+            <span> REQUEST ID </span>
+
+            <strong> #{{ selectedReport.id }} </strong>
+          </div>
+        </div>
+      </section>
+
+      <!-- ================================================= -->
+      <!-- MANAGER DECISION -->
+      <!-- ================================================= -->
+
+      <section class="decision-section">
+        <div class="decision-header">
+          <div>
+            <div class="eyebrow">MANAGER DECISION</div>
+
+            <h2>Review the joining request</h2>
+
+            <p>Approve or reject this employee joining request.</p>
+          </div>
+        </div>
+
+        <!-- REJECTION REASON -->
+
+        <div class="rejection-container">
+          <label for="rejectionReason"> REJECTION REASON </label>
+
+          <textarea
+            id="rejectionReason"
+            name="rejectionReason"
+            [(ngModel)]="rejectionReason"
+            rows="4"
+            placeholder="Enter rejection reason if you want to reject this joining request..."
+            [disabled]="actionLoading"
+          ></textarea>
+
+          <small> A rejection reason is required when rejecting the request. </small>
+        </div>
+
+        <!-- ACTION BUTTONS -->
+
+        <div class="decision-actions">
+          <button
+            type="button"
+            class="reject-button"
+            (click)="rejectRequest()"
+            [disabled]="actionLoading"
+          >
+            <span *ngIf="!actionLoading"> Reject </span>
+
+            <span *ngIf="actionLoading"> Processing... </span>
+          </button>
+
+          <button
+            type="button"
+            class="approve-button"
+            (click)="approveRequest()"
+            [disabled]="actionLoading"
+          >
+            <span *ngIf="!actionLoading"> Approve Request </span>
+
+            <span *ngIf="actionLoading"> Processing... </span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </div>
+</div>
