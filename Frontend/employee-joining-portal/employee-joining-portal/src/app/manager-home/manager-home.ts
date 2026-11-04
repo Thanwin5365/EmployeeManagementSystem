@@ -1,4 +1,5 @@
 import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { environment } from '../../environments/environment';
 
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -17,7 +18,7 @@ import { Router } from '@angular/router';
 export class ManagerHome implements OnInit {
   // API
 
-  private readonly API_URL = 'https://localhost:7024';
+  private readonly API_URL = environment.apiUrl;
 
   // MANAGER INFORMATION
 

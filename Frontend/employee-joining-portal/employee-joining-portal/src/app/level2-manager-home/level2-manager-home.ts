@@ -4,6 +4,8 @@ import {
   ChangeDetectorRef
 } from '@angular/core';
 
+import { environment } from '../../environments/environment';
+
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -73,7 +75,7 @@ interface JoiningReport {
 export class Level2ManagerHome implements OnInit {
 
 
-  private apiUrl = 'https://localhost:7024';
+  private apiUrl = environment.apiUrl;
 
 
   managerId: number = 0;

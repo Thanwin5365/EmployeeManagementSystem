@@ -1,12 +1,13 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
 
-  private apiUrl = 'https://localhost:7024';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -21,12 +22,12 @@ export class AuthService {
   }
 
   managerLogin(username: string, password: string) {
-  return this.http.post<any>(
-    this.apiUrl + '/managers/login',
-    {
-      username: username,
-      password: password
-    }
-  );
-}
+    return this.http.post<any>(
+      this.apiUrl + '/managers/login',
+      {
+        username: username,
+        password: password
+      }
+    );
+  }
 }

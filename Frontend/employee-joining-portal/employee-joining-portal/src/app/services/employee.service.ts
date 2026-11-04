@@ -1,13 +1,15 @@
+
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map } from 'rxjs/operators';
+import { environment } from '../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
 
-  private apiUrl = 'https://localhost:7024';
+  private apiUrl = environment.apiUrl;
 
   constructor(private http: HttpClient) {}
 
@@ -30,11 +32,8 @@ export class EmployeeService {
   }
 
   getJoiningReportSummary(employeeId: number) {
-
     return this.getReportsByEmployee(employeeId).pipe(
-
       map((reports: any[]) => {
-
         const total = reports.length;
 
         const accepted = reports.filter(
@@ -59,11 +58,8 @@ export class EmployeeService {
           rejected,
           pending
         };
-
       })
-
     );
-
   }
 
   createJoiningReport(joiningReport: any) {

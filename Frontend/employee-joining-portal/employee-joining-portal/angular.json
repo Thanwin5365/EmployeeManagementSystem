@@ -25,12 +25,16 @@
                 "input": "public"
               }
             ],
-            "styles": [
-              "src/styles.css"
-            ]
+            "styles": ["src/styles.css"]
           },
           "configurations": {
             "production": {
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.development.ts",
+                  "with": "src/environments/environment.ts"
+                }
+              ],
               "budgets": [
                 {
                   "type": "initial",
@@ -39,13 +43,20 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "20kB",
+                  "maximumError": "25kB"
                 }
               ],
               "outputHashing": "all"
             },
             "development": {
+              "fileReplacements": [
+    {
+      "replace": "src/environments/environment.ts",
+      "with": "src/environments/environment.development.ts"
+    }
+  ],
+              
               "optimization": false,
               "extractLicenses": false,
               "sourceMap": true
@@ -60,6 +71,7 @@
               "buildTarget": "employee-joining-portal:build:production"
             },
             "development": {
+              
               "buildTarget": "employee-joining-portal:build:development"
             }
           },

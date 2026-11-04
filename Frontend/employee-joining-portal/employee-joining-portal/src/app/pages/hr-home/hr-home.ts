@@ -3,6 +3,7 @@ import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { environment } from '../../../environments/environment';
 
 interface JoiningReport {
   id: number;
@@ -63,7 +64,7 @@ export class HrHome implements OnInit {
   // =====================================================
 
   private readonly apiUrl =
-    'https://localhost:7024/joining-reports';
+  `${environment.apiUrl}/joining-reports`;
 
 
   // =====================================================
