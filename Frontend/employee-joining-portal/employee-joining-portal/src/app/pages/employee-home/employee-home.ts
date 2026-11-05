@@ -28,6 +28,20 @@ export class EmployeeHome implements OnInit {
     location: '',
   };
 
+  // =====================================================
+// ATTENDANCE
+// =====================================================
+
+attendance: AttendanceResponse | null = null;
+
+attendanceLoading = false;
+attendanceProcessing = false;
+
+attendanceError = '';
+attendanceSuccess = '';
+
+attendanceEmployeeId = 0;
+
 
   // =====================================================
   // JOINING FORM
@@ -83,12 +97,13 @@ export class EmployeeHome implements OnInit {
   // =====================================================
 
   constructor(
-    private router: Router,
-    private employeeService: EmployeeService,
-    private cdr: ChangeDetectorRef,
-  ) {
-    this.loadSavedForm();
-  }
+  private router: Router,
+  private employeeService: EmployeeService,
+  private cdr: ChangeDetectorRef,
+  private attendanceService: AttendanceService
+) {
+  this.loadSavedForm();
+}
 
 
   // =====================================================
@@ -106,6 +121,9 @@ export class EmployeeHome implements OnInit {
 
       return;
     }
+    this.attendanceEmployeeId = Number(employeeId);
+
+this.loadAttendance();
 
     console.log(
       'Loading employee:',
@@ -954,6 +972,92 @@ export class EmployeeHome implements OnInit {
     }
 
   }
+
+  
+  // =====================================================
+  // ATTENDANCE
+  // =====================================================
+
+  get isCheckedIn(): boolean {
+    return this.attendance?.status === "Didn't Punch Out";
+  }
+
+  loadAttendance(): void {
+    this.attendanceLoading = true;
+    this.attendanceError = '';
+
+    this.attendanceService
+      .getTodayAttendance(this.attendanceEmployeeId)
+      .subscribe({
+        next: (response) => {
+          this.attendance = response;
+          this.attendanceLoading = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.attendanceLoading = false;
+          this.attendanceError =
+            error.error?.message || 'Unable to load attendance.';
+
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  checkIn(): void {
+    if (this.attendanceProcessing) return;
+
+    this.attendanceProcessing = true;
+    this.attendanceError = '';
+    this.attendanceSuccess = '';
+
+    this.attendanceService
+      .checkIn(this.attendanceEmployeeId)
+      .subscribe({
+        next: (response) => {
+          this.attendance = response.attendance;
+          this.attendanceSuccess = response.message;
+          this.attendanceProcessing = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.attendanceError =
+            error.error?.message || 'Check-in failed.';
+
+          this.attendanceProcessing = false;
+          this.loadAttendance();
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
+  checkOut(): void {
+    if (this.attendanceProcessing) return;
+
+    this.attendanceProcessing = true;
+    this.attendanceError = '';
+    this.attendanceSuccess = '';
+
+    this.attendanceService
+      .checkOut(this.attendanceEmployeeId)
+      .subscribe({
+        next: (response) => {
+          this.attendance = response.attendance;
+          this.attendanceSuccess = response.message;
+          this.attendanceProcessing = false;
+          this.cdr.detectChanges();
+        },
+        error: (error) => {
+          this.attendanceError =
+            error.error?.message || 'Check-out failed.';
+
+          this.attendanceProcessing = false;
+          this.loadAttendance();
+          this.cdr.detectChanges();
+        }
+      });
+  }
+
 
 
   // =====================================================

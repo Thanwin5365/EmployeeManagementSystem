@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://YOUR-BACKEND-URL.onrender.com'
+  apiUrl: 'https://candidates-mega-slim-qty.trycloudflare.com'
 };

@@ -1100,3 +1100,190 @@
   }
 
 }
+
+
+/* =========================================
+   EMPLOYEE ATTENDANCE
+========================================= */
+
+.employee-attendance-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 25px;
+  margin-bottom: 25px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+}
+
+.attendance-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+
+.attendance-label {
+  color: #64748b;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1.2px;
+}
+
+.attendance-header h2 {
+  margin: 8px 0;
+  color: #1e293b;
+  font-size: 22px;
+}
+
+.attendance-header p {
+  margin: 0;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.attendance-refresh {
+  width: 38px;
+  height: 38px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #475569;
+  font-size: 23px;
+  cursor: pointer;
+}
+
+.attendance-details {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 25px;
+}
+
+.attendance-info {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(140px, 1fr));
+  gap: 22px 35px;
+  flex: 1;
+}
+
+.attendance-time-item {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attendance-time-item span {
+  color: #64748b;
+  font-size: 13px;
+}
+
+.attendance-time-item strong {
+  color: #1e293b;
+  font-size: 17px;
+}
+
+.attendance-action {
+  min-width: 190px;
+  text-align: center;
+}
+
+.attendance-punch-button {
+  width: 100%;
+  min-height: 52px;
+  border: none;
+  border-radius: 10px;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.attendance-punch-button.check-in {
+  background: #16a34a;
+}
+
+.attendance-punch-button.check-in:hover:not(:disabled) {
+  background: #15803d;
+  transform: translateY(-2px);
+}
+
+.attendance-punch-button.check-out {
+  background: #dc2626;
+}
+
+.attendance-punch-button.check-out:hover:not(:disabled) {
+  background: #b91c1c;
+  transform: translateY(-2px);
+}
+
+.attendance-punch-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.punch-icon {
+  margin-right: 8px;
+  font-size: 18px;
+}
+
+.attendance-action-hint {
+  margin-top: 12px;
+  color: #64748b;
+  font-size: 12px;
+}
+
+.attendance-message {
+  padding: 12px 15px;
+  border-radius: 8px;
+  margin-bottom: 15px;
+  font-size: 13px;
+}
+
+.attendance-success {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.attendance-error {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.attendance-loading {
+  padding: 20px;
+  text-align: center;
+  color: #64748b;
+}
+
+.attendance-refresh:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .attendance-details {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .attendance-info {
+    gap: 20px;
+  }
+
+  .attendance-action {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .employee-attendance-card {
+    padding: 18px;
+  }
+
+  .attendance-info {
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+}

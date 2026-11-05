@@ -1,8 +1,6 @@
 ﻿
 using EmployeeJoiningAPI.Services;
 using Microsoft.AspNetCore.Mvc;
-using System.Linq.Expressions;
-using System.Reflection.Metadata.Ecma335;
 
 namespace EmployeeJoiningAPI.Controllers
 {
@@ -33,9 +31,6 @@ namespace EmployeeJoiningAPI.Controllers
                 return BadRequest(new { message = ex.Message });
             }
         }
-
-        
-
 
         [HttpPost("check-in/{employeeId:int}")]
         public async Task<IActionResult> PunchIn(int employeeId)

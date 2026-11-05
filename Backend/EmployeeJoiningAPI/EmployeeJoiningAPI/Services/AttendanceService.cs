@@ -20,16 +20,13 @@ namespace EmployeeJoiningAPI.Services
 
             return await _repository.GetTodayAttendanceAsync(employeeId);
         }
+
         public async Task<AttendanceResponse?> PunchInAsync(
             int employeeId)
         {
             ValidateEmployeeId(employeeId);
 
-            // Save every check-in as a separate punch.
-            await _repository.PunchInAsync(employeeId);
-
-            // Recalculate the daily summary.
-            return await _repository.UpdateDailyAttendanceAsync(employeeId);
+            return await _repository.PunchInAsync(employeeId);
         }
 
         public async Task<AttendanceResponse?> PunchOutAsync(
@@ -37,12 +34,9 @@ namespace EmployeeJoiningAPI.Services
         {
             ValidateEmployeeId(employeeId);
 
-            // Save every check-out as a separate punch.
-            await _repository.PunchOutAsync(employeeId);
-
-            // Recalculate the daily summary.
-            return await _repository.UpdateDailyAttendanceAsync(employeeId);
+            return await _repository.PunchOutAsync(employeeId);
         }
+
         private static void ValidateEmployeeId(int employeeId)
         {
             if (employeeId <= 0)

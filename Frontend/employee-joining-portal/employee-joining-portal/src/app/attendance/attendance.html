@@ -1,0 +1,97 @@
+
+<div class="attendance-container">
+
+  <div class="page-header">
+    <div>
+      <h1>Attendance</h1>
+      <p>Track your daily attendance and working hours.</p>
+    </div>
+
+    <button class="refresh-btn"
+            (click)="loadAttendance()"
+            [disabled]="loading || processing">
+      ↻ Refresh
+    </button>
+  </div>
+
+  <div class="message success" *ngIf="successMessage">
+    {{ successMessage }}
+  </div>
+
+  <div class="message error" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="loading" *ngIf="loading">
+    Loading attendance...
+  </div>
+
+  <div class="attendance-content" *ngIf="!loading && employeeId">
+
+    <div class="date-card">
+      <span>Today's Date</span>
+      <h2>{{ attendance?.attendanceDate ? (attendance?.attendanceDate | date:'EEEE, dd MMMM yyyy') : ('' | date:'EEEE, dd MMMM yyyy') }}</h2>
+    </div>
+
+    <div class="summary-grid">
+
+      <div class="summary-card">
+        <span>First Check-in</span>
+        <h2>
+          {{ attendance?.finalCheckIn ? (attendance?.finalCheckIn | date:'hh:mm a') : '--:--' }}
+        </h2>
+      </div>
+
+      <div class="summary-card">
+        <span>Latest Check-out</span>
+        <h2>
+          {{ attendance?.finalCheckOut ? (attendance?.finalCheckOut | date:'hh:mm a') : '--:--' }}
+        </h2>
+      </div>
+
+      <div class="summary-card">
+        <span>Total Working Hours</span>
+        <h2>{{ attendance?.totalWorkingHours ?? '0.00' }} hrs</h2>
+      </div>
+
+      <div class="summary-card">
+        <span>Attendance Status</span>
+        <h2>{{ attendance?.status || 'No Attendance' }}</h2>
+      </div>
+
+    </div>
+
+    <div class="punch-card">
+
+      <h2>Attendance Actions</h2>
+      <p>Record your check-in and check-out for today.</p>
+
+      <div class="punch-actions">
+
+        <button
+          class="check-in-btn"
+          *ngIf="!isCheckedIn"
+          (click)="checkIn()"
+          [disabled]="processing">
+          {{ processing ? 'Processing...' : 'Check In' }}
+        </button>
+
+        <button
+          class="check-out-btn"
+          *ngIf="isCheckedIn"
+          (click)="checkOut()"
+          [disabled]="processing">
+          {{ processing ? 'Processing...' : 'Check Out' }}
+        </button>
+
+      </div>
+
+      <p class="punch-status" *ngIf="isCheckedIn">
+        You are currently checked in.
+      </p>
+
+    </div>
+
+  </div>
+
+</div>

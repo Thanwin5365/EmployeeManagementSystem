@@ -4,7 +4,6 @@ using EmployeeJoiningAPI.Services;
 using EmployeeJoiningAPI.Repositories;
 using Microsoft.EntityFrameworkCore;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
 // DATABASE
@@ -16,12 +15,16 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 // REPOSITORIES
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 builder.Services.AddScoped<IManagerRepository, ManagerRepository>();
+builder.Services.AddScoped<IJoiningReportRepository, JoiningReportRepository>();
+builder.Services.AddScoped<AttendanceRepository>();
 
 // SERVICES
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IManagerAuthService, ManagerAuthService>();
 builder.Services.AddScoped<IJoiningReportService, JoiningReportService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IAttendanceService, AttendanceService>();
 
 // CONTROLLERS
 builder.Services.AddControllers();
@@ -36,22 +39,16 @@ builder.Services.AddCors(options =>
     options.AddPolicy("AllowAngular", policy =>
     {
         policy
-            .AllowAnyOrigin()
+            .WithOrigins(
+                "http://localhost:4200",
+                "https://employeemanagementsystem-nnci.onrender.com"
+            )
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
 });
 
-builder.Services.AddScoped<IJoiningReportRepository, JoiningReportRepository>();
-builder.Services.AddScoped<IJoiningReportService, JoiningReportService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
-
-// ATTENDANCE
-builder.Services.AddScoped<AttendanceRepository>();
-builder.Services.AddScoped<IAttendanceService, AttendanceService>();
-
 var app = builder.Build();
-
 
 // MIDDLEWARE
 if (app.Environment.IsDevelopment())

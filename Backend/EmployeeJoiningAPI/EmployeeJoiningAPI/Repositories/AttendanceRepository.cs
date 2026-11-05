@@ -72,17 +72,22 @@ namespace EmployeeJoiningAPI.Repositories
         }
 
 
-        public async Task PunchInAsync(int employeeId)
-        {
-            await ExecutePunchProcedureAsync(
-                "dbo.sp_PunchIn", employeeId);
-        }
+        
+public async Task<AttendanceResponse?> PunchInAsync(int employeeId)
+{
+    await ExecutePunchProcedureAsync(
+        "dbo.sp_PunchIn", employeeId);
 
-        public async Task PunchOutAsync(int employeeId)
-        {
-            await ExecutePunchProcedureAsync(
-                "dbo.sp_PunchOut", employeeId);
-        }
+    return await GetTodayAttendanceAsync(employeeId);
+}
+
+public async Task<AttendanceResponse?> PunchOutAsync(int employeeId)
+{
+    await ExecutePunchProcedureAsync(
+        "dbo.sp_PunchOut", employeeId);
+
+    return await GetTodayAttendanceAsync(employeeId);
+}
 
         private async Task ExecutePunchProcedureAsync(
             string procedureName,

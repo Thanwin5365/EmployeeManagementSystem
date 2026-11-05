@@ -65,6 +65,172 @@
 
     </section>
 
+    
+    <!-- =========================
+         ATTENDANCE SECTION
+    ========================== -->
+
+    <section class="employee-attendance-card">
+
+      <div class="attendance-header">
+
+        <div>
+          <span class="attendance-label">
+            DAILY ATTENDANCE
+          </span>
+
+          <h2>Attendance</h2>
+
+          <p>
+            Record your daily check-in and check-out.
+          </p>
+        </div>
+
+        <button
+          type="button"
+          class="attendance-refresh"
+          (click)="loadAttendance()"
+          [disabled]="attendanceLoading || attendanceProcessing"
+          title="Refresh attendance"
+        >
+          ↻
+        </button>
+
+      </div>
+
+      <!-- ATTENDANCE MESSAGES -->
+
+      <div
+        class="attendance-message attendance-success"
+        *ngIf="attendanceSuccess"
+      >
+        {{ attendanceSuccess }}
+      </div>
+
+      <div
+        class="attendance-message attendance-error"
+        *ngIf="attendanceError"
+      >
+        {{ attendanceError }}
+      </div>
+
+      <!-- LOADING -->
+
+      <div
+        class="attendance-loading"
+        *ngIf="attendanceLoading"
+      >
+        Loading attendance...
+      </div>
+
+      <!-- ATTENDANCE DETAILS -->
+
+      <div
+        class="attendance-details"
+        *ngIf="!attendanceLoading"
+      >
+
+        <div class="attendance-info">
+
+          <div class="attendance-time-item">
+
+            <span>First Check-in</span>
+
+            <strong>
+              {{
+                attendance?.finalCheckIn
+                  ? (attendance?.finalCheckIn | date:'hh:mm a')
+                  : '--:--'
+              }}
+            </strong>
+
+          </div>
+
+          <div class="attendance-time-item">
+
+            <span>Latest Check-out</span>
+
+            <strong>
+              {{
+                attendance?.finalCheckOut
+                  ? (attendance?.finalCheckOut | date:'hh:mm a')
+                  : '--:--'
+              }}
+            </strong>
+
+          </div>
+
+          <div class="attendance-time-item">
+
+            <span>Total Working Hours</span>
+
+            <strong>
+              {{ attendance?.totalWorkingHours ?? '0.00' }} hrs
+            </strong>
+
+          </div>
+
+          <div class="attendance-time-item">
+
+            <span>Attendance Status</span>
+
+            <strong>
+              {{ attendance?.status || 'Not Started' }}
+            </strong>
+
+          </div>
+
+        </div>
+
+        <!-- CHECK-IN BUTTON -->
+
+        <div class="attendance-action">
+
+          <button
+            *ngIf="!isCheckedIn"
+            type="button"
+            class="attendance-punch-button check-in"
+            (click)="checkIn()"
+            [disabled]="attendanceProcessing || !attendanceEmployeeId"
+          >
+
+            <span class="punch-icon">↗</span>
+
+            {{ attendanceProcessing ? 'Processing...' : 'CHECK IN' }}
+
+          </button>
+
+          <!-- CHECK-OUT BUTTON -->
+
+          <button
+            *ngIf="isCheckedIn"
+            type="button"
+            class="attendance-punch-button check-out"
+            (click)="checkOut()"
+            [disabled]="attendanceProcessing"
+          >
+
+            <span class="punch-icon">↙</span>
+
+            {{ attendanceProcessing ? 'Processing...' : 'CHECK OUT' }}
+
+          </button>
+
+          <p class="attendance-action-hint" *ngIf="isCheckedIn">
+            You are currently checked in. Remember to check out.
+          </p>
+
+          <p class="attendance-action-hint" *ngIf="!isCheckedIn">
+            You are currently checked out.
+          </p>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
 
     <!-- =========================
          EMPLOYEE INFORMATION
