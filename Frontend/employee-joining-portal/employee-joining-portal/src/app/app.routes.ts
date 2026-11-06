@@ -1,5 +1,5 @@
 import { Routes } from '@angular/router';
-
+import { authGuard } from './auth-guard';
 import { Level2ManagerHome } from './level2-manager-home/level2-manager-home';
 import { Login } from './pages/login/login';
 import { EmployeeHome } from './pages/employee-home/employee-home';
@@ -43,7 +43,8 @@ export const routes: Routes = [
 
   {
   path: 'dashboard',
-  component: Dashboard
+  component: Dashboard,
+  canActivate: [authGuard]
 },
 
 ];

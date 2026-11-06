@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://candidates-mega-slim-qty.trycloudflare.com'
+  apiUrl: 'https://competitions-sip-tool-astronomy.trycloudflare.com'
 };
