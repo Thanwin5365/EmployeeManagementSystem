@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -11,7 +11,8 @@ import { AuthService } from '../../services/auth.service';
   templateUrl: './login.html',
   styleUrl: './login.css',
 })
-export class Login {
+
+export class Login implements OnInit {
 
   loginId: string = '';
   password: string = '';
@@ -23,6 +24,28 @@ export class Login {
     private authService: AuthService,
     private router: Router,
   ) {}
+
+  ngOnInit(): void {
+    const role = sessionStorage.getItem('role');
+
+    if (role === 'employee' || role === 'manager') {
+      this.router.navigate(['/dashboard'], {
+        replaceUrl: true
+      });
+    }
+  }
+
+  @HostListener('window:pageshow')
+  onPageShow(): void {
+    const role = sessionStorage.getItem('role');
+
+    if (role === 'employee' || role === 'manager') {
+      this.router.navigate(['/dashboard'], {
+        replaceUrl: true
+      });
+    }
+  }
+
 
   login(): void {
 
@@ -87,9 +110,9 @@ export class Login {
 
           this.loading = false;
 
-          this.router.navigate([
-            '/dashboard'
-          ]);
+          this.router.navigate(['/dashboard'], {
+  replaceUrl: true
+});
         },
 
         error: (employeeError) => {
@@ -162,9 +185,9 @@ export class Login {
 
                 this.loading = false;
 
-                this.router.navigate([
-                  '/dashboard'
-                ]);
+                this.router.navigate(['/dashboard'], {
+  replaceUrl: true
+});
               },
 
               error: (managerError) => {
