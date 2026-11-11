@@ -1,16 +1,8 @@
 
-using EmployeeJoiningAPI.Data;
 using EmployeeJoiningAPI.Services;
 using EmployeeJoiningAPI.Repositories;
-using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
-
-// DATABASE
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlServer(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-    ));
 
 // REPOSITORIES
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
@@ -58,11 +50,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseCors("AllowAngular");
-
 app.UseAuthorization();
-
 app.MapControllers();
 
 app.Run();
