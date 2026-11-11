@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://competitions-sip-tool-astronomy.trycloudflare.com'
+  apiUrl: 'https://myspace-vegas-wash-uses.trycloudflare.com'
 };
