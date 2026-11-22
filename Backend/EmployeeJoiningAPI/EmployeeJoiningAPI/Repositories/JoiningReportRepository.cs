@@ -1,6 +1,6 @@
 ﻿
-using System.Data;
-using Microsoft.Data.SqlClient;
+using Npgsql;
+using NpgsqlTypes;
 using EmployeeJoiningAPI.Models;
 
 namespace EmployeeJoiningAPI.Repositories
@@ -18,9 +18,9 @@ namespace EmployeeJoiningAPI.Repositories
                     "Connection string 'DefaultConnection' was not found.");
         }
 
-        private SqlConnection CreateConnection()
+        private NpgsqlConnection CreateConnection()
         {
-            return new SqlConnection(_connectionString);
+            return new NpgsqlConnection(_connectionString);
         }
 
         
@@ -31,13 +31,10 @@ public async Task<List<JoiningReportApprovalHistory>>
 
             await using var connection = CreateConnection();
 
-            await using var command = new SqlCommand(
-                "dbo.sp_GetJoiningReportApprovalHistory",
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM get_joining_report_approval_history(@p_id)",
                 connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-
-            command.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+            command.Parameters.Add("p_id", NpgsqlDbType.Integer).Value = id;
 
             await connection.OpenAsync();
 
@@ -95,14 +92,10 @@ public async Task<List<JoiningReport>> GetPendingLevel2ReportsAsync(
 
             await using var connection = CreateConnection();
 
-            await using var command = new SqlCommand(
-                "dbo.sp_GetPendingLevel2JoiningReports",
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM get_pending_level2_joining_reports(@p_level2_manager_id)",
                 connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-
-            command.Parameters.Add("@Level2ManagerId", SqlDbType.Int)
-                .Value = level2ManagerId;
+            command.Parameters.Add("p_level2_manager_id", NpgsqlDbType.Integer).Value = level2ManagerId;
 
             await connection.OpenAsync();
 
@@ -169,12 +162,9 @@ public async Task<List<JoiningReport>> GetPendingHrReportsAsync()
 
             await using var connection = CreateConnection();
 
-            await using var command = new SqlCommand(
-                "dbo.sp_GetPendingHrJoiningReports",
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM get_pending_hr_joining_reports()",
                 connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-
             await connection.OpenAsync();
 
             await using var reader = await command.ExecuteReaderAsync();
@@ -252,12 +242,9 @@ public async Task<List<JoiningReport>> GetAllReportsAsync()
 
             await using var connection = CreateConnection();
 
-            await using var command = new SqlCommand(
-                "dbo.sp_GetAllJoiningReports",
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM get_all_joining_reports()",
                 connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-
             await connection.OpenAsync();
 
 
@@ -325,13 +312,10 @@ public async Task<JoiningReport?> GetReportByIdAsync(int id)
 
             await using var connection = CreateConnection();
 
-            await using var command = new SqlCommand(
-                "dbo.sp_GetJoiningReportById",
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM get_joining_report_by_id(@p_id)",
                 connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-
-            command.Parameters.Add("@Id", SqlDbType.Int).Value = id;
+            command.Parameters.Add("p_id", NpgsqlDbType.Integer).Value = id;
 
             await connection.OpenAsync();
 
@@ -413,14 +397,10 @@ public async Task<List<JoiningReport>> GetReportsByEmployeeAsync(
 
             await using var connection = CreateConnection();
 
-            await using var command = new SqlCommand(
-                "dbo.sp_GetJoiningReportsByEmployee",
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM get_joining_reports_by_employee(@p_employee_id)",
                 connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-
-            command.Parameters.Add("@EmployeeId", SqlDbType.Int)
-                .Value = employeeId;
+            command.Parameters.Add("p_employee_id", NpgsqlDbType.Integer).Value = employeeId;
 
             await connection.OpenAsync();
 
@@ -491,42 +471,30 @@ public async Task<JoiningReport> CreateReportAsync(
 
             await using var connection = CreateConnection();
 
-            await using var command = new SqlCommand(
-                "dbo.sp_CreateJoiningReport",
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM create_joining_report(@p_employee_id, @p_employee_name, @p_designation, @p_department, @p_joined_duty_on, @p_joining_type, @p_leave_applied_till, @p_delay_reason, @p_form_date, @p_signature)",
                 connection);
+            command.Parameters.Add("p_employee_id", NpgsqlDbType.Integer).Value = joiningReport.EmployeeId;
 
-            command.CommandType = CommandType.StoredProcedure;
+            command.Parameters.Add("p_employee_name", NpgsqlDbType.Text).Value = joiningReport.EmployeeName;
 
-            command.Parameters.Add("@EmployeeId", SqlDbType.Int)
-                .Value = joiningReport.EmployeeId;
+            command.Parameters.Add("p_designation", NpgsqlDbType.Text).Value = joiningReport.Designation;
 
-            command.Parameters.Add("@EmployeeName", SqlDbType.NVarChar, 150)
-    .Value = joiningReport.EmployeeName;
+            command.Parameters.Add("p_department", NpgsqlDbType.Text).Value = joiningReport.Department;
 
-            command.Parameters.Add("@Designation", SqlDbType.NVarChar, 150)
-    .Value = joiningReport.Designation;
+            command.Parameters.Add("p_joined_duty_on", NpgsqlDbType.Date).Value = joiningReport.JoinedDutyOn.Date;
 
-            command.Parameters.Add("@Department", SqlDbType.NVarChar, 150)
-     .Value = joiningReport.Department;
+            command.Parameters.Add("p_joining_type", NpgsqlDbType.Text).Value = joiningReport.JoiningType;
 
-            command.Parameters.Add("@JoinedDutyOn", SqlDbType.Date)
-                .Value = joiningReport.JoinedDutyOn.Date;
+            command.Parameters.Add("p_leave_applied_till", NpgsqlDbType.Date).Value =
+                (object?)joiningReport.LeaveAppliedTill?.Date ?? DBNull.Value;
 
-            command.Parameters.Add("@JoiningType", SqlDbType.NVarChar, 50)
-    .Value = joiningReport.JoiningType;
+            command.Parameters.Add("p_delay_reason", NpgsqlDbType.Text).Value =
+                (object?)joiningReport.DelayReason ?? DBNull.Value;
 
-            command.Parameters.Add("@LeaveAppliedTill", SqlDbType.Date)
-                .Value = (object?)joiningReport.LeaveAppliedTill?.Date
-                    ?? DBNull.Value;
+            command.Parameters.Add("p_form_date", NpgsqlDbType.Date).Value = joiningReport.FormDate.Date;
 
-            command.Parameters.Add("@DelayReason", SqlDbType.NVarChar, 500)
-    .Value = (object?)joiningReport.DelayReason ?? DBNull.Value;
-
-            command.Parameters.Add("@FormDate", SqlDbType.Date)
-                .Value = joiningReport.FormDate.Date;
-
-            command.Parameters.Add("@Signature", SqlDbType.NVarChar, 150)
-    .Value = joiningReport.Signature;
+            command.Parameters.Add("p_signature", NpgsqlDbType.Text).Value = joiningReport.Signature;
 
             await connection.OpenAsync();
 
@@ -554,11 +522,8 @@ public async Task<List<JoiningReport>> GetPendingLevel1ReportsAsync()
             var reports = new List<JoiningReport>();
 
             await using var connection = CreateConnection();
-            await using var command = new SqlCommand(
-                "dbo.sp_GetPendingLevel1JoiningReports", connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM get_pending_level1_joining_reports()", connection);
             await connection.OpenAsync();
             await using var reader = await command.ExecuteReaderAsync();
 
@@ -579,15 +544,17 @@ public async Task<List<JoiningReport>> GetPendingLevel1ReportsAsync()
                 throw new ArgumentException("Level 1 Manager ID is required.");
 
             await using var connection = CreateConnection();
-            await using var command = new SqlCommand(
-                "dbo.sp_ApproveLevel1JoiningReport", connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.Add("@ReportId", SqlDbType.Int).Value = reportId;
-            command.Parameters.Add("@Level1ManagerId", SqlDbType.Int).Value = managerId.Value;
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM approve_level1_joining_report(@p_report_id, @p_level1_manager_id)", connection);
+            command.Parameters.Add("p_report_id", NpgsqlDbType.Integer).Value = reportId;
+            command.Parameters.Add("p_level1_manager_id", NpgsqlDbType.Integer).Value = managerId.Value;
 
             await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                // Consume the function result; the database function performs the update.
+            }
         }
 
         // LEVEL 1 REJECT
@@ -597,31 +564,34 @@ public async Task<List<JoiningReport>> GetPendingLevel1ReportsAsync()
                 throw new ArgumentException("Rejection reason is required.");
 
             await using var connection = CreateConnection();
-            await using var command = new SqlCommand(
-                "dbo.sp_RejectLevel1JoiningReport", connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.Add("@ReportId", SqlDbType.Int).Value = reportId;
-            command.Parameters.Add("@RejectionReason", SqlDbType.NVarChar, -1)
-                .Value = reason.Trim();
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM reject_level1_joining_report(@p_report_id, @p_rejection_reason)", connection);
+            command.Parameters.Add("p_report_id", NpgsqlDbType.Integer).Value = reportId;
+            command.Parameters.Add("p_rejection_reason", NpgsqlDbType.Text).Value = reason.Trim();
 
             await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                // Consume the function result; the database function performs the update.
+            }
         }
 
         // LEVEL 2 APPROVE
         public async Task ApproveLevel2Async(int reportId, int managerId)
         {
             await using var connection = CreateConnection();
-            await using var command = new SqlCommand(
-                "dbo.sp_ApproveLevel2JoiningReport", connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.Add("@ReportId", SqlDbType.Int).Value = reportId;
-            command.Parameters.Add("@Level2ManagerId", SqlDbType.Int).Value = managerId;
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM approve_level2_joining_report(@p_report_id, @p_level2_manager_id)", connection);
+            command.Parameters.Add("p_report_id", NpgsqlDbType.Integer).Value = reportId;
+            command.Parameters.Add("p_level2_manager_id", NpgsqlDbType.Integer).Value = managerId;
 
             await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                // Consume the function result; the database function performs the update.
+            }
         }
 
         // LEVEL 2 REJECT
@@ -629,32 +599,35 @@ public async Task<List<JoiningReport>> GetPendingLevel1ReportsAsync()
             int reportId, int managerId, string reason)
         {
             await using var connection = CreateConnection();
-            await using var command = new SqlCommand(
-                "dbo.sp_RejectLevel2JoiningReport", connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.Add("@ReportId", SqlDbType.Int).Value = reportId;
-            command.Parameters.Add("@Level2ManagerId", SqlDbType.Int).Value = managerId;
-            command.Parameters.Add("@RejectionReason", SqlDbType.NVarChar, -1)
-                .Value = reason.Trim();
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM reject_level2_joining_report(@p_report_id, @p_level2_manager_id, @p_rejection_reason)", connection);
+            command.Parameters.Add("p_report_id", NpgsqlDbType.Integer).Value = reportId;
+            command.Parameters.Add("p_level2_manager_id", NpgsqlDbType.Integer).Value = managerId;
+            command.Parameters.Add("p_rejection_reason", NpgsqlDbType.Text).Value = reason.Trim();
 
             await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                // Consume the function result; the database function performs the update.
+            }
         }
 
         // HR APPROVE
         public async Task ApproveHrAsync(int reportId, int hrManagerId)
         {
             await using var connection = CreateConnection();
-            await using var command = new SqlCommand(
-                "dbo.sp_ApproveHrJoiningReport", connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.Add("@ReportId", SqlDbType.Int).Value = reportId;
-            command.Parameters.Add("@HrManagerId", SqlDbType.Int).Value = hrManagerId;
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM approve_hr_joining_report(@p_report_id, @p_hr_manager_id)", connection);
+            command.Parameters.Add("p_report_id", NpgsqlDbType.Integer).Value = reportId;
+            command.Parameters.Add("p_hr_manager_id", NpgsqlDbType.Integer).Value = hrManagerId;
 
             await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                // Consume the function result; the database function performs the update.
+            }
         }
 
         // HR REJECT
@@ -662,21 +635,22 @@ public async Task<List<JoiningReport>> GetPendingLevel1ReportsAsync()
             int reportId, int hrManagerId, string reason)
         {
             await using var connection = CreateConnection();
-            await using var command = new SqlCommand(
-                "dbo.sp_RejectHrJoiningReport", connection);
-
-            command.CommandType = CommandType.StoredProcedure;
-            command.Parameters.Add("@ReportId", SqlDbType.Int).Value = reportId;
-            command.Parameters.Add("@HrManagerId", SqlDbType.Int).Value = hrManagerId;
-            command.Parameters.Add("@RejectionReason", SqlDbType.NVarChar, -1)
-                .Value = reason.Trim();
+            await using var command = new NpgsqlCommand(
+                "SELECT * FROM reject_hr_joining_report(@p_report_id, @p_hr_manager_id, @p_rejection_reason)", connection);
+            command.Parameters.Add("p_report_id", NpgsqlDbType.Integer).Value = reportId;
+            command.Parameters.Add("p_hr_manager_id", NpgsqlDbType.Integer).Value = hrManagerId;
+            command.Parameters.Add("p_rejection_reason", NpgsqlDbType.Text).Value = reason.Trim();
 
             await connection.OpenAsync();
-            await command.ExecuteNonQueryAsync();
+            await using var reader = await command.ExecuteReaderAsync();
+            if (await reader.ReadAsync())
+            {
+                // Consume the function result; the database function performs the update.
+            }
         }
 
         
-private static JoiningReport MapJoiningReport(SqlDataReader reader)
+private static JoiningReport MapJoiningReport(NpgsqlDataReader reader)
         {
             int Ord(string name) => reader.GetOrdinal(name);
 

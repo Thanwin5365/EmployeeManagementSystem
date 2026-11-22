@@ -1,7 +1,6 @@
 ﻿
 using EmployeeJoiningAPI.Models;
-using Microsoft.Data.SqlClient;
-using System.Data;
+using Npgsql;
 
 namespace EmployeeJoiningAPI.Repositories
 {
@@ -17,118 +16,60 @@ namespace EmployeeJoiningAPI.Repositories
                     "Connection string 'DefaultConnection' not found.");
         }
 
-
         public async Task<List<Manager>> GetAllManagersAsync()
         {
             var managers = new List<Manager>();
 
-            using var conn =
-                new SqlConnection(_connectionString);
-
+            await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new SqlCommand(
-                "SELECT * FROM dbo.Managers",
-                conn);
+            await using var cmd = new NpgsqlCommand(
+                "SELECT * FROM get_all_managers()", conn);
 
-            cmd.CommandType = CommandType.Text;
-
-            using var reader =
-                await cmd.ExecuteReaderAsync();
+            await using var reader = await cmd.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
             {
-                var manager = new Manager
-                {
-                    ManagerId = reader.GetInt32(
-                        reader.GetOrdinal("ManagerId")),
-
-                    Username = reader.GetString(
-                        reader.GetOrdinal("Username")),
-
-                    Name = reader.GetString(
-                        reader.GetOrdinal("Name")),
-
-                    ManagerLevel = reader.GetInt32(
-                        reader.GetOrdinal("ManagerLevel")),
-
-                    ManagerKey = reader.GetString(
-                        reader.GetOrdinal("ManagerKey")),
-
-                    PasswordHash = reader.GetString(
-                        reader.GetOrdinal("PasswordHash"))
-                };
-
-                managers.Add(manager);
+                managers.Add(MapManager(reader));
             }
 
             return managers;
         }
 
-        
         public async Task<Manager?> GetManagerByIdAsync(int managerId)
         {
-            using var conn = new SqlConnection(_connectionString);
-
+            await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new SqlCommand(
-                "SELECT * FROM dbo.Managers WHERE ManagerId = @ManagerId",
-                conn);
+            await using var cmd = new NpgsqlCommand(
+                "SELECT * FROM get_manager_by_id(@p_manager_id)", conn);
 
-            cmd.CommandType = CommandType.Text;
+            cmd.Parameters.AddWithValue("p_manager_id", managerId);
 
-            cmd.Parameters.Add(
-                "@ManagerId",
-                SqlDbType.Int).Value = managerId;
-
-            using var reader = await cmd.ExecuteReaderAsync();
+            await using var reader = await cmd.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                return new Manager
-                {
-                    ManagerId = reader.GetInt32(
-                        reader.GetOrdinal("ManagerId")),
-
-                    Username = reader.GetString(
-                        reader.GetOrdinal("Username")),
-
-                    Name = reader.GetString(
-                        reader.GetOrdinal("Name")),
-
-                    ManagerLevel = reader.GetInt32(
-                        reader.GetOrdinal("ManagerLevel")),
-
-                    ManagerKey = reader.GetString(
-                        reader.GetOrdinal("ManagerKey")),
-
-                    PasswordHash = reader.GetString(
-                        reader.GetOrdinal("PasswordHash"))
-                };
+                return MapManager(reader);
             }
 
             return null;
         }
 
-
-        public async Task<List<Employee>> GetManagerEmployeesAsync(
-            int managerId)
+        public async Task<List<Employee>> GetManagerEmployeesAsync(int managerId)
         {
             var employees = new List<Employee>();
 
-            using var conn = new SqlConnection(_connectionString);
+            await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            string? managerKey = null;
+            string? managerKey;
 
-            using (var managerCmd = new SqlCommand(
-                "SELECT ManagerKey FROM dbo.Managers WHERE ManagerId = @ManagerId",
+            await using (var managerCmd = new NpgsqlCommand(
+                "SELECT \"ManagerKey\" FROM \"Managers\" WHERE \"ManagerId\" = @p_manager_id",
                 conn))
             {
-                managerCmd.Parameters.Add(
-                    "@ManagerId",
-                    SqlDbType.Int).Value = managerId;
+                managerCmd.Parameters.AddWithValue("p_manager_id", managerId);
 
                 var result = await managerCmd.ExecuteScalarAsync();
 
@@ -140,103 +81,67 @@ namespace EmployeeJoiningAPI.Repositories
                 managerKey = Convert.ToString(result);
             }
 
-            using var cmd = new SqlCommand(
-                "dbo.GetEmployeesByManager",
-                conn);
+            await using var cmd = new NpgsqlCommand(
+                "SELECT * FROM get_employees_by_manager(@p_manager_key)", conn);
 
-            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("p_manager_key", managerKey!);
 
-            cmd.Parameters.Add(
-                "@ManagerKey",
-                SqlDbType.NVarChar,
-                100).Value = managerKey!;
-
-            using var reader = await cmd.ExecuteReaderAsync();
+            await using var reader = await cmd.ExecuteReaderAsync();
 
             while (await reader.ReadAsync())
             {
-                var employee = new Employee
+                employees.Add(new Employee
                 {
-                    EmployeeId = reader.GetInt32(
-                        reader.GetOrdinal("EmployeeId")),
-
-                    Username = reader.GetString(
-                        reader.GetOrdinal("Username")),
-
-                    Name = reader.GetString(
-                        reader.GetOrdinal("Name")),
-
-                    Department = reader.GetString(
-                        reader.GetOrdinal("Department"))
-                };
-
-                employees.Add(employee);
+                    EmployeeId = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
+                    Username = reader["Username"] == DBNull.Value
+                        ? null : reader["Username"].ToString(),
+                    Name = reader["Name"].ToString()!,
+                    Department = reader["Department"].ToString()!
+                });
             }
 
             return employees;
         }
 
-        
-        
-
-
-
-        public async Task<Manager?> GetManagerForLoginAsync( 
-            string username)
+        public async Task<Manager?> GetManagerForLoginAsync(string username)
         {
-            using var conn =
-                new SqlConnection(_connectionString);
-
+            await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new SqlCommand(
-                "dbo.sp_GetManagerForLogin",
-                conn);
+            await using var cmd = new NpgsqlCommand(
+                "SELECT * FROM get_manager_for_login(@p_username)", conn);
 
-            cmd.CommandType =
-                CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("p_username", username);
 
-            cmd.Parameters.Add(
-                "@Username",
-                SqlDbType.NVarChar,
-                100).Value = username;
-
-            using var reader =
-                await cmd.ExecuteReaderAsync();
+            await using var reader = await cmd.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                return new Manager
-                {
-                    ManagerId = reader.GetInt32(
-                        reader.GetOrdinal("ManagerId")),
-
-                    Username = reader.GetString(
-                        reader.GetOrdinal("Username")),
-
-                    Name = reader.GetString(
-                        reader.GetOrdinal("Name")),
-
-                    ManagerLevel = reader.GetInt32(
-                        reader.GetOrdinal("ManagerLevel")),
-
-                    ManagerKey = reader.GetString(
-                        reader.GetOrdinal("ManagerKey")),
-                    
-                   
-
-                    PasswordHash = reader.GetString(
-                        reader.GetOrdinal("PasswordHash")),
-                    
-                   
-
-                    
-
-
-                };
+                return MapManager(reader);
             }
 
             return null;
+        }
+
+        private static Manager MapManager(NpgsqlDataReader reader)
+        {
+            return new Manager
+            {
+                ManagerId = reader.GetInt32(reader.GetOrdinal("ManagerId")),
+
+                Username = reader["Username"] == DBNull.Value
+                    ? null : reader["Username"].ToString(),
+
+                Name = reader["Name"].ToString()!,
+
+                ManagerLevel = reader.GetInt32(
+                    reader.GetOrdinal("ManagerLevel")),
+
+                ManagerKey = reader["ManagerKey"] == DBNull.Value
+                    ? null : reader["ManagerKey"].ToString(),
+
+                PasswordHash = reader["PasswordHash"].ToString()!
+            };
         }
     }
 }

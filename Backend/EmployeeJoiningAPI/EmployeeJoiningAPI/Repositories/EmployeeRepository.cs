@@ -1,5 +1,6 @@
-﻿using EmployeeJoiningAPI.Models;
-using Microsoft.Data.SqlClient;
+﻿
+using EmployeeJoiningAPI.Models;
+using Npgsql;
 using System.Data;
 
 namespace EmployeeJoiningAPI.Repositories
@@ -16,32 +17,18 @@ namespace EmployeeJoiningAPI.Repositories
                     "Connection string 'DefaultConnection' not found.");
         }
 
-
         public async Task<bool> ValidateUser(
             string username,
             string hashedPassword)
         {
-            using var conn =
-                new SqlConnection(_connectionString);
-
+            await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new SqlCommand(
-                "dbo.sp_ValidateUser",
-                conn);
+            await using var cmd = new NpgsqlCommand(
+                "SELECT validate_user(@p_username, @p_password)", conn);
 
-            cmd.CommandType =
-                CommandType.StoredProcedure;
-
-            cmd.Parameters.Add(
-                "@Username",
-                SqlDbType.NVarChar,
-                100).Value = username;
-
-            cmd.Parameters.Add(
-                "@Password",
-                SqlDbType.NVarChar,
-                500).Value = hashedPassword;
+            cmd.Parameters.AddWithValue("p_username", username);
+            cmd.Parameters.AddWithValue("p_password", hashedPassword);
 
             var result = await cmd.ExecuteScalarAsync();
 
@@ -50,157 +37,75 @@ namespace EmployeeJoiningAPI.Repositories
                    Convert.ToBoolean(result);
         }
 
-
-
         public async Task<Employee?> GetEmployeeForLoginAsync(string username)
         {
-            using var conn = new SqlConnection(_connectionString);
+            await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new SqlCommand("dbo.sp_GetEmployeeForLogin", conn);
-            cmd.CommandType = CommandType.StoredProcedure;
+            await using var cmd = new NpgsqlCommand(
+                "SELECT * FROM get_employee_for_login(@p_username)", conn);
 
-            cmd.Parameters.Add("@Username", SqlDbType.NVarChar, 100).Value = username;
+            cmd.Parameters.AddWithValue("p_username", username);
 
-            using var reader = await cmd.ExecuteReaderAsync();
+            await using var reader = await cmd.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                return new Employee
-                {
-                    EmployeeId = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
-                    Username = reader.GetString(reader.GetOrdinal("Username")),
-                    Name = reader.GetString(reader.GetOrdinal("Name")),
-                    Department = reader.GetString(reader.GetOrdinal("Department")),
-
-                    Designation = reader["Designation"] == DBNull.Value
-                        ? null
-                        : reader["Designation"].ToString(),
-
-                    Email = reader["Email"] == DBNull.Value
-                        ? null
-                        : reader["Email"].ToString(),
-
-                    Phone = reader["Phone"] == DBNull.Value
-                        ? null
-                        : reader["Phone"].ToString(),
-
-                    Location = reader["Location"] == DBNull.Value
-                        ? null
-                        : reader["Location"].ToString()
-                };
+                return MapEmployee(reader);
             }
 
             return null;
         }
 
-
         public async Task<List<Employee>> GetAllEmployeesAsync()
-{
-    var employees = new List<Employee>();
-
-    using var conn =
-        new SqlConnection(_connectionString);
-
-    await conn.OpenAsync();
-
-    using var cmd = new SqlCommand(
-        "dbo.sp_GetAllEmployees",
-        conn);
-
-    cmd.CommandType =
-        CommandType.StoredProcedure;
-
-    using var reader =
-        await cmd.ExecuteReaderAsync();
-
-    while (await reader.ReadAsync())
-    {
-        var employee = new Employee
         {
-            EmployeeId = reader.GetInt32(
-                reader.GetOrdinal("EmployeeId")),
+            var employees = new List<Employee>();
 
-            Username = reader.GetString(
-                reader.GetOrdinal("Username")),
+            await using var conn = new NpgsqlConnection(_connectionString);
+            await conn.OpenAsync();
 
-            Name = reader.GetString(
-                reader.GetOrdinal("Name")),
+            await using var cmd = new NpgsqlCommand(
+                "SELECT * FROM get_all_employees()", conn);
 
-            Department = reader.GetString(
-                reader.GetOrdinal("Department")),          
-        };
+            await using var reader = await cmd.ExecuteReaderAsync();
 
-        employees.Add(employee);
-    }
+            while (await reader.ReadAsync())
+            {
+                employees.Add(MapEmployee(reader));
+            }
 
-    return employees;
-}
+            return employees;
+        }
 
         public async Task<Employee?> GetEmployeeByIdAsync(int employeeId)
         {
-            using var conn = new SqlConnection(_connectionString);
+            await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new SqlCommand(
-                "dbo.sp_GetEmployeeById",
-                conn);
+            await using var cmd = new NpgsqlCommand(
+                "SELECT * FROM get_employee_by_id(@p_employee_id)", conn);
 
-            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("p_employee_id", employeeId);
 
-            cmd.Parameters.Add("@EmployeeId", SqlDbType.Int).Value = employeeId;
-
-            using var reader = await cmd.ExecuteReaderAsync();
+            await using var reader = await cmd.ExecuteReaderAsync();
 
             if (await reader.ReadAsync())
             {
-                return new Employee
-                {
-                    EmployeeId = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
-                    Username = reader.GetString(reader.GetOrdinal("Username")),
-                    Name = reader.GetString(reader.GetOrdinal("Name")),
-                    Department = reader.GetString(reader.GetOrdinal("Department")),
-
-                    Designation = reader["Designation"] == DBNull.Value
-                        ? null
-                        : reader["Designation"].ToString(),
-
-                    Email = reader["Email"] == DBNull.Value
-                        ? null
-                        : reader["Email"].ToString(),
-
-                    Phone = reader["Phone"] == DBNull.Value
-                        ? null
-                        : reader["Phone"].ToString(),
-
-                    Location = reader["Location"] == DBNull.Value
-                        ? null
-                        : reader["Location"].ToString()
-                };
+                return MapEmployee(reader);
             }
 
             return null;
         }
 
-
         public async Task<string?> GetPasswordHashAsync(string username)
         {
-            using var conn = new SqlConnection(_connectionString);
+            await using var conn = new NpgsqlConnection(_connectionString);
             await conn.OpenAsync();
 
-            using var cmd = new SqlCommand(
-                @"SELECT PasswordHash
-          FROM dbo.Employees
-          WHERE Username = @Username
-            AND IsActive = 1",
-                conn);
+            await using var cmd = new NpgsqlCommand(
+                "SELECT get_employee_password_hash(@p_username)", conn);
 
-            cmd.Parameters.Add(
-                "@Username",
-                SqlDbType.NVarChar,
-                100).Value = username;
-
-           
+            cmd.Parameters.AddWithValue("p_username", username);
 
             var result = await cmd.ExecuteScalarAsync();
 
@@ -209,5 +114,31 @@ namespace EmployeeJoiningAPI.Repositories
                 : Convert.ToString(result);
         }
 
+        private static Employee MapEmployee(NpgsqlDataReader reader)
+        {
+            return new Employee
+            {
+                EmployeeId = reader.GetInt32(reader.GetOrdinal("EmployeeId")),
+
+                Username = reader["Username"] == DBNull.Value
+                    ? null
+                    : reader["Username"].ToString(),
+
+                Name = reader["Name"].ToString()!,
+                Department = reader["Department"].ToString()!,
+
+                Designation = reader["Designation"] == DBNull.Value
+                    ? null : reader["Designation"].ToString(),
+
+                Email = reader["Email"] == DBNull.Value
+                    ? null : reader["Email"].ToString(),
+
+                Phone = reader["Phone"] == DBNull.Value
+                    ? null : reader["Phone"].ToString(),
+
+                Location = reader["Location"] == DBNull.Value
+                    ? null : reader["Location"].ToString()
+            };
+        }
     }
 }
