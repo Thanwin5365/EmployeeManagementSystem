@@ -1,4 +1,4 @@
 export const environment = {
   production: true,
-  apiUrl: 'https://myspace-vegas-wash-uses.trycloudflare.com'
+  apiUrl: 'https://employee-management-api-6pdu.onrender.com'
 };
