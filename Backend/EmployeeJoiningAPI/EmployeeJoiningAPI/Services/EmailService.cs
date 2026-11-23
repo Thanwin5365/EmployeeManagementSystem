@@ -51,24 +51,28 @@ namespace EmployeeJoiningAPI.Services
 
             try
             {
+                Console.WriteLine("SMTP: Connecting...");
+
                 await smtp.ConnectAsync(
                     "smtp.gmail.com",
                     587,
                     SecureSocketOptions.StartTls,
                     cts.Token);
 
+                Console.WriteLine("SMTP: Connected successfully");
+
                 await smtp.AuthenticateAsync(
                     emailAddress,
                     appPassword,
                     cts.Token);
 
-                await smtp.SendAsync(
-                    message,
-                    cts.Token);
+                Console.WriteLine("SMTP: Authentication successful");
 
-                await smtp.DisconnectAsync(
-                    true,
-                    cts.Token);
+                await smtp.SendAsync(message, cts.Token);
+
+                Console.WriteLine("SMTP: Email sent successfully");
+
+                await smtp.DisconnectAsync(true, cts.Token);
             }
             catch (OperationCanceledException)
             {
