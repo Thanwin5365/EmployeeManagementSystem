@@ -128,14 +128,22 @@ namespace EmployeeJoiningAPI.Services
                 throw new Exception(
                     "Joining report could not be retrieved after approval.");
 
-            await SendJoiningReportEmailAsync(
-    updatedReport,
-    $"Joining Report #{updatedReport.Id} - Level 1 Approved",
-    $"Hello,\n\n" +
-    $"Your Joining Report #{updatedReport.Id} has been approved " +
-    $"by the Level 1 Manager and forwarded to the Level 2 Manager.\n\n" +
-    $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
-    "Regards,\nAlpha Data Employee Portal");
+            try
+            {
+                await SendJoiningReportEmailAsync(
+                    updatedReport,
+                    $"Joining Report #{updatedReport.Id} - Level 1 Approved",
+                    $"Hello,\n\n" +
+                    $"Your Joining Report #{updatedReport.Id} has been approved " +
+                    $"by the Level 1 Manager and forwarded to the Level 2 Manager.\n\n" +
+                    $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
+                    "Regards,\nAlpha Data Employee Portal");
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(
+                    $"Level 1 approval email failed for report {reportId}: {ex.Message}");
+            }
 
             return new
             {
@@ -150,7 +158,7 @@ namespace EmployeeJoiningAPI.Services
                 level1ApprovedDate = updatedReport.Level1ApprovedDate
             };
         }
-        
+
         // LEVEL 1 REJECT
 
         public async Task<object> RejectLevel1Async(
@@ -183,15 +191,23 @@ namespace EmployeeJoiningAPI.Services
                 throw new Exception(
                     "Joining report could not be retrieved after rejection.");
 
-            await SendJoiningReportEmailAsync(
-    updatedReport,
-    $"Joining Report #{updatedReport.Id} - Level 1 Rejected",
-    $"Hello,\n\n" +
-    $"Your Joining Report #{updatedReport.Id} has been rejected " +
-    $"by the Level 1 Manager.\n\n" +
-    $"Reason: {updatedReport.Level1RejectionReason}\n\n" +
-    $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
-    "Regards,\nAlpha Data Employee Portal");
+            try
+{
+    await SendJoiningReportEmailAsync(
+        updatedReport,
+        $"Joining Report #{updatedReport.Id} - Level 1 Rejected",
+        $"Hello,\n\n" +
+        $"Your Joining Report #{updatedReport.Id} has been rejected " +
+        $"by the Level 1 Manager.\n\n" +
+        $"Reason: {updatedReport.Level1RejectionReason}\n\n" +
+        $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
+        "Regards,\nAlpha Data Employee Portal");
+}
+catch (Exception ex)
+{
+    Console.WriteLine(
+        $"Level 1 rejection email failed for report {reportId}: {ex.Message}");
+}
 
             return new
             {
@@ -240,14 +256,22 @@ namespace EmployeeJoiningAPI.Services
                     "Joining report could not be retrieved after approval.");
 
 
-            await SendJoiningReportEmailAsync(
-                updatedReport,
-                $"Joining Report #{updatedReport.Id} - Level 2 Approved",
-                $"Hello,\n\n" +
-                $"Your Joining Report #{updatedReport.Id} has been approved " +
-                $"by the Level 2 Manager and forwarded to HR for final review.\n\n" +
-                $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
-                "Regards,\nAlpha Data Employee Portal");
+            try
+{
+    await SendJoiningReportEmailAsync(
+        updatedReport,
+        $"Joining Report #{updatedReport.Id} - Level 2 Approved",
+        $"Hello,\n\n" +
+        $"Your Joining Report #{updatedReport.Id} has been approved " +
+        $"by the Level 2 Manager and forwarded to HR for final review.\n\n" +
+        $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
+        "Regards,\nAlpha Data Employee Portal");
+}
+catch (Exception ex)
+{
+    Console.WriteLine(
+        $"Level 2 approval email failed for report {reportId}: {ex.Message}");
+}
 
 
             return new
@@ -306,15 +330,23 @@ namespace EmployeeJoiningAPI.Services
                     "Joining report could not be retrieved after rejection.");
 
 
-            await SendJoiningReportEmailAsync(
-                updatedReport,
-                $"Joining Report #{updatedReport.Id} - Level 2 Rejected",
-                $"Hello,\n\n" +
-                $"Your Joining Report #{updatedReport.Id} has been rejected " +
-                $"by the Level 2 Manager.\n\n" +
-                $"Reason: {updatedReport.Level2RejectionReason}\n\n" +
-                $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
-                "Regards,\nAlpha Data Employee Portal");
+            try
+{
+    await SendJoiningReportEmailAsync(
+        updatedReport,
+        $"Joining Report #{updatedReport.Id} - Level 2 Rejected",
+        $"Hello,\n\n" +
+        $"Your Joining Report #{updatedReport.Id} has been rejected " +
+        $"by the Level 2 Manager.\n\n" +
+        $"Reason: {updatedReport.Level2RejectionReason}\n\n" +
+        $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
+        "Regards,\nAlpha Data Employee Portal");
+}
+catch (Exception ex)
+{
+    Console.WriteLine(
+        $"Level 2 rejection email failed for report {reportId}: {ex.Message}");
+}
 
 
             return new
@@ -368,13 +400,21 @@ namespace EmployeeJoiningAPI.Services
                     "Joining report could not be retrieved after HR approval.");
 
 
-            await SendJoiningReportEmailAsync(
-                updatedReport,
-                $"Joining Report #{updatedReport.Id} - HR Approved",
-                $"Hello,\n\n" +
-                $"Your Joining Report #{updatedReport.Id} has received final approval from HR.\n\n" +
-                $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
-                "Regards,\nAlpha Data Employee Portal");
+           try
+{
+    await SendJoiningReportEmailAsync(
+        updatedReport,
+        $"Joining Report #{updatedReport.Id} - HR Approved",
+        $"Hello,\n\n" +
+        $"Your Joining Report #{updatedReport.Id} has received final approval from HR.\n\n" +
+        $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
+        "Regards,\nAlpha Data Employee Portal");
+}
+catch (Exception ex)
+{
+    Console.WriteLine(
+        $"HR approval email failed for report {reportId}: {ex.Message}");
+}
 
 
             return new
@@ -427,14 +467,22 @@ namespace EmployeeJoiningAPI.Services
                     "Joining report could not be retrieved after HR rejection.");
 
 
-            await SendJoiningReportEmailAsync(
-                updatedReport,
-                $"Joining Report #{updatedReport.Id} - HR Rejected",
-                $"Hello,\n\n" +
-                $"Your Joining Report #{updatedReport.Id} has been rejected by HR.\n\n" +
-                $"Reason: {updatedReport.HrRejectionReason}\n\n" +
-                $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
-                "Regards,\nAlpha Data Employee Portal");
+            try
+{
+    await SendJoiningReportEmailAsync(
+        updatedReport,
+        $"Joining Report #{updatedReport.Id} - HR Rejected",
+        $"Hello,\n\n" +
+        $"Your Joining Report #{updatedReport.Id} has been rejected by HR.\n\n" +
+        $"Reason: {updatedReport.HrRejectionReason}\n\n" +
+        $"Current Status: {updatedReport.ApprovalStatus}\n\n" +
+        "Regards,\nAlpha Data Employee Portal");
+}
+catch (Exception ex)
+{
+    Console.WriteLine(
+        $"HR rejection email failed for report {reportId}: {ex.Message}");
+}
 
 
             return new

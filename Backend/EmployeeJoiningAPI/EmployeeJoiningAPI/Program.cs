@@ -42,6 +42,7 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
+
 // MIDDLEWARE
 app.UseSwagger();
 app.UseSwaggerUI();

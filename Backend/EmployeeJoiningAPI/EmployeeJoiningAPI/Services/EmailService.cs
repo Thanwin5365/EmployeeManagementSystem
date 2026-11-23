@@ -32,7 +32,9 @@ namespace EmployeeJoiningAPI.Services
             var message = new MimeMessage();
 
             message.From.Add(
-                new MailboxAddress("Alpha Data Employee Portal", emailAddress));
+                new MailboxAddress(
+                    "Alpha Data Employee Portal",
+                    emailAddress));
 
             message.To.Add(MailboxAddress.Parse(toEmail));
             message.Subject = subject;
@@ -42,20 +44,37 @@ namespace EmployeeJoiningAPI.Services
                 Text = body
             };
 
-            
-
             using var smtp = new SmtpClient();
 
-            await smtp.ConnectAsync(
-                "smtp.gmail.com",
-                587,
-                
-                SecureSocketOptions.StartTls);
+            using var cts = new CancellationTokenSource(
+                TimeSpan.FromSeconds(15));
 
-            await smtp.AuthenticateAsync(emailAddress, appPassword);
+            try
+            {
+                await smtp.ConnectAsync(
+                    "smtp.gmail.com",
+                    587,
+                    SecureSocketOptions.StartTls,
+                    cts.Token);
 
-            await smtp.SendAsync(message);
-            await smtp.DisconnectAsync(true);
+                await smtp.AuthenticateAsync(
+                    emailAddress,
+                    appPassword,
+                    cts.Token);
+
+                await smtp.SendAsync(
+                    message,
+                    cts.Token);
+
+                await smtp.DisconnectAsync(
+                    true,
+                    cts.Token);
+            }
+            catch (OperationCanceledException)
+            {
+                throw new TimeoutException(
+                    "Email sending timed out after 15 seconds.");
+            }
         }
     }
 }
