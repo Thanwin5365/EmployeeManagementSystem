@@ -1,17 +1,20 @@
 ﻿
-using MailKit.Net.Smtp;
-using MailKit.Security;
-using MimeKit;
+using System.Net.Http.Headers;
+using System.Net.Http.Json;
 
 namespace EmployeeJoiningAPI.Services
 {
     public class EmailService : IEmailService
     {
         private readonly IConfiguration _configuration;
+        private readonly HttpClient _httpClient;
 
-        public EmailService(IConfiguration configuration)
+        public EmailService(
+            IConfiguration configuration,
+            HttpClient httpClient)
         {
             _configuration = configuration;
+            _httpClient = httpClient;
         }
 
         public async Task SendEmailAsync(
@@ -19,65 +22,58 @@ namespace EmployeeJoiningAPI.Services
             string subject,
             string body)
         {
-            var emailAddress =
-                _configuration["EmailSettings:Email"]
+            var apiKey =
+                _configuration["RESEND_API_KEY"]
                 ?? throw new InvalidOperationException(
-                    "Email address is not configured.");
+                    "Resend API key is not configured.");
 
-            var appPassword =
-                _configuration["EmailSettings:AppPassword"]
-                ?? throw new InvalidOperationException(
-                    "Gmail App Password is not configured.");
-
-            var message = new MimeMessage();
-
-            message.From.Add(
-                new MailboxAddress(
-                    "Alpha Data Employee Portal",
-                    emailAddress));
-
-            message.To.Add(MailboxAddress.Parse(toEmail));
-            message.Subject = subject;
-
-            message.Body = new TextPart("plain")
+            var requestData = new
             {
-                Text = body
+                from = "Alpha Data Employee Portal <onboarding@resend.dev>",
+                to = new[] { toEmail },
+                subject = subject,
+                text = body
             };
 
-            using var smtp = new SmtpClient();
+            using var request = new HttpRequestMessage(
+                HttpMethod.Post,
+                "https://api.resend.com/emails");
+
+            request.Headers.Authorization =
+                new AuthenticationHeaderValue("Bearer", apiKey);
+
+            request.Content = JsonContent.Create(requestData);
 
             using var cts = new CancellationTokenSource(
-                TimeSpan.FromSeconds(15));
+                TimeSpan.FromSeconds(30));
 
             try
             {
-                Console.WriteLine("SMTP: Connecting...");
+                Console.WriteLine("Resend: Sending email...");
 
-                await smtp.ConnectAsync(
-                    "smtp.gmail.com",
-                    587,
-                    SecureSocketOptions.StartTls,
+                using var response = await _httpClient.SendAsync(
+                    request,
                     cts.Token);
 
-                Console.WriteLine("SMTP: Connected successfully");
+                var responseBody =
+                    await response.Content.ReadAsStringAsync(cts.Token);
 
-                await smtp.AuthenticateAsync(
-                    emailAddress,
-                    appPassword,
-                    cts.Token);
+                if (!response.IsSuccessStatusCode)
+                {
+                    Console.WriteLine(
+                        $"Resend API Error: {responseBody}");
 
-                Console.WriteLine("SMTP: Authentication successful");
+                    throw new HttpRequestException(
+                        $"Resend email failed. Status: {(int)response.StatusCode}. Details: {responseBody}");
+                }
 
-                await smtp.SendAsync(message, cts.Token);
-
-                Console.WriteLine("SMTP: Email sent successfully");
-
-                await smtp.DisconnectAsync(true, cts.Token);
+                Console.WriteLine(
+                    $"Resend: Email sent successfully. Response: {responseBody}");
             }
             catch (OperationCanceledException)
             {
                 throw new TimeoutException(
-                    "Email sending timed out after 15 seconds.");
+                    "Resend email request timed out after 30 seconds.");
             }
         }
     }

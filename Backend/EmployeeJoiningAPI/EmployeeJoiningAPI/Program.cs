@@ -15,7 +15,7 @@ builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<IManagerAuthService, ManagerAuthService>();
 builder.Services.AddScoped<IJoiningReportService, JoiningReportService>();
 builder.Services.AddScoped<IPasswordService, PasswordService>();
-builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddHttpClient<IEmailService, EmailService>();
 builder.Services.AddScoped<IAttendanceService, AttendanceService>();
 
 // CONTROLLERS
